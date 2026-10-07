@@ -8,7 +8,7 @@ An independent application prototype by Jeremy: explore a source-grounded compan
 
 ## Try it in two minutes
 
-1. Open **Overview** and read **The next robotics bottleneck may be the data loop**.
+1. Open **Start here** and read **The next robotics bottleneck may be the data loop**.
 2. Follow a company into its evidence, risks, and unanswered questions. Public Anti Fund investments and independent research examples are labeled separately.
 3. Save a company to your shortlist, assemble an editable brief, and add your judgment.
 4. Reload. Your edits are stored in Cloudflare D1. Explore history, archive a record, and restore it from Trash.

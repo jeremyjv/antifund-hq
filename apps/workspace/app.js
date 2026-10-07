@@ -162,14 +162,14 @@ function navItem(id, label, iconName, count = "") {
 }
 function shell() {
   const labels = {
-    overview: "Overview",
+    overview: "Start here",
     companies: "Companies",
-    research: "Research",
-    workspace: "My workspace",
-    about: "About & connect",
+    research: "Research briefs",
+    workspace: "Saved work",
+    about: "Sources & agent access",
   };
   document.title = `Anti Fund HQ — ${labels[state.view]}`;
-  app.innerHTML = `<aside class="sidebar" aria-label="Primary navigation"><button class="icon-button mobile-menu" data-action="close-menu" aria-label="Close navigation">${icon("close")}</button><a class="brand" href="#overview" aria-label="Anti Fund HQ overview"><img class="brand-logo" src="/assets/antifund-logo.png" alt=""><div><div class="brand-name">Anti Fund</div><div class="brand-sub">RESEARCH HQ</div></div></a><div class="nav-label">Workspace</div><nav>${navItem("overview", "Overview", "grid")}${navItem("companies", "Companies", "companies", state.research?.companies.length ?? "")}${navItem("research", "Research", "research", state.research?.briefs.length ?? "")}${navItem("workspace", "My workspace", "folder", state.workspace.length || "")}</nav><div class="sidebar-bottom">${navItem("about", "About & connect", "connect")}<div class="sidebar-note"><strong>Built for the new guard.</strong><br>Public evidence. Original questions.<br>A place for the work to compound.</div></div></aside><div class="app-main"><header class="topbar"><button class="icon-button mobile-menu" data-action="open-menu" aria-label="Open navigation">${icon("menu")}</button><div class="breadcrumb"><span>Anti Fund HQ</span><span>/</span><span>${labels[state.view]}</span></div><div class="topbar-actions"><span class="prototype"><span class="dot"></span> Independent prototype</span>${external(github, "View repository")}</div></header><main class="content" id="main" tabindex="-1">${page()}</main></div>`;
+  app.innerHTML = `<aside class="sidebar" aria-label="Primary navigation"><button class="icon-button mobile-menu" data-action="close-menu" aria-label="Close navigation">${icon("close")}</button><a class="brand" href="#overview" aria-label="Anti Fund HQ overview"><img class="brand-logo" src="/assets/antifund-logo.png" alt=""><div><div class="brand-name">Anti Fund</div><div class="brand-sub">RESEARCH HQ</div></div></a><div class="nav-label">Workspace</div><nav>${navItem("overview", "Start here", "grid")}${navItem("companies", "Companies", "companies", state.research?.companies.length ?? "")}${navItem("research", "Research briefs", "research")}</nav><div class="sidebar-bottom">${navItem("workspace", "Saved work", "folder", state.workspace.length || "")}${navItem("about", "Sources & agent access", "connect")}<div class="sidebar-note"><strong>Prepared for Anti Fund.</strong><br>Research demo by Jeremy.<br>Built from public sources.</div></div></aside><div class="app-main"><header class="topbar"><button class="icon-button mobile-menu" data-action="open-menu" aria-label="Open navigation">${icon("menu")}</button><div class="breadcrumb"><span>Anti Fund HQ</span><span>/</span><span>${labels[state.view]}</span></div><div class="topbar-actions"><span class="prototype"><span class="dot"></span> Independent prototype</span>${external(github, "View repository")}</div></header><main class="content" id="main" tabindex="-1">${page()}</main></div>`;
 }
 function page() {
   if (state.loading)
@@ -191,21 +191,19 @@ function page() {
 function overview() {
   const r = state.research;
   const featured = r.briefs[0];
-  const observedSignals = [...r.signals]
-    .sort((a, b) => (b.observedAt || "").localeCompare(a.observedAt || ""))
-    .slice(0, 4);
-  return `${heading("The research desk", "Find the signal. Build conviction.", "A working view of the bottlenecks behind the next generation of companies.", btn("open-brief", `Start with the research ${icon("arrow")}`, "primary", `data-id="${esc(featured?.id || "")}"`))}
- <div class="welcome-strip"><p><strong>A head start, built from public evidence.</strong> Explore the research, follow a source, then make it your own.</p><a class="text-link" href="#about">How this is seeded ${icon("arrow")}</a></div>
- <div class="metric-row"><div class="metric"><div class="metric-value">${r.companies.length}</div><div class="metric-label">Companies mapped</div></div><div class="metric"><div class="metric-value">${r.sources.length}</div><div class="metric-label">Traceable public sources</div></div><div class="metric"><div class="metric-value">${r.theses.length}</div><div class="metric-label">Bottlenecks to investigate</div></div><div class="metric"><div class="metric-value">${r.briefs.length}</div><div class="metric-label">Original research briefs</div></div></div>
- <section aria-labelledby="thesis-heading"><div class="section-heading"><div><h2 id="thesis-heading">Follow the bottleneck</h2><p>Research hypotheses informed by the Anti Fund manifesto.</p></div>${external("https://antifund.com/manifesto", "Read manifesto")}</div><div class="thesis-grid">${r.theses.map((t, i) => `<article class="thesis-card"><div class="eyebrow">0${i + 1} / Thesis map</div><button data-action="open-thesis" data-id="${esc(t.id)}"><h3>${esc(t.title)}</h3></button><p>${esc(t.bottleneck || t.summary)}</p><footer><span>${t.companyIds.length} companies · ${t.sourceIds.length} sources</span><button class="icon-button" data-action="open-thesis" data-id="${esc(t.id)}" aria-label="Explore ${esc(t.title)}">${icon("arrow")}</button></footer></article>`).join("")}</div></section>
- <div class="overview-grid"><section aria-labelledby="brief-heading"><div class="section-heading"><h2 id="brief-heading">An angle worth exploring</h2><a class="text-link" href="#research">All research ${icon("arrow")}</a></div>${featured ? `<article class="brief-feature"><span class="eyebrow">01 / Original research · Hypothesis</span><h3>${esc(featured.title)}</h3><p>${esc(short(featured.summary, 225))}</p><footer>${btn("open-brief", `Read the brief ${icon("arrow")}`, "", `data-id="${esc(featured.id)}"`)}<span class="mini-meta">${featured.sourceIds.length} sources · ${featured.companyIds.length} companies</span></footer></article>` : ""}${r.briefs
-   .slice(1)
-   .map(
-     (b, i) =>
-       `<button class="brief-row" data-action="open-brief" data-id="${esc(b.id)}"><span class="row-number">0${i + 2}</span><span><h3>${esc(b.title)}</h3><p>${b.sourceIds.length} sources · Research hypothesis</p></span>${icon("arrow")}</button>`,
-   )
-   .join("")}</section>
- <section aria-labelledby="signals-heading"><div class="section-heading"><div><h2 id="signals-heading">On the radar</h2><p>Dated public updates · Research snapshot</p></div><span class="eyebrow">${r.signals.length} observations</span></div><div class="signal-list">${observedSignals.map(signalCard).join("")}</div></section></div>`;
+  const signals = [...r.signals].filter(s => s.observedAt).sort((a,b) => b.observedAt.localeCompare(a.observedAt)).slice(0,3);
+  return `${heading("Anti Fund / Research demo", "What deserves a closer look?", "Explore a research idea, check the evidence, and prepare your next founder conversation.")}
+  <section class="start-feature" aria-labelledby="start-title">
+    <div class="start-story"><span class="eyebrow">Start here · A 2-minute research brief</span>
+    <h2 id="start-title">A robot fails in the field.<br>Who helps it learn from that?</h2>
+    <p>Foxglove and Rerun build tools for working with robot data. As robot models improve, could the tools around them become more valuable?</p>
+    <div class="start-reason"><strong>Why this fits Anti Fund</strong><p>Your manifesto points to robotics and the infrastructure it needs. This brief investigates one part of that opportunity: turning real-world failures into better robot performance.</p></div>
+    ${btn("open-brief", `Read the brief ${icon("arrow")}`, "primary", `data-id="${esc(featured.id)}"`)}
+    <span class="start-proof">${featured.sourceIds.length} linked sources · Research hypothesis</span></div>
+    <aside class="start-guide"><h3>What you’ll get</h3><ol><li><strong>The evidence</strong><span>What the companies actually publish.</span></li><li><strong>The open question</strong><span>Where a useful product could become a lasting business.</span></li><li><strong>The next conversation</strong><span>Questions to test with a founder.</span></li></ol><p>Public research prepared for this demo. Company claims and our interpretation are kept separate.</p></aside>
+  </section>
+  <section class="next-paths" aria-label="Explore the workspace"><a href="#companies"><span>Explore the companies</span><p>${r.companies.length} profiles with sources, risks, and questions.</p>${icon("arrow")}</a><a href="#research"><span>Read the other briefs</span><p>Robot hardware, compute, and energy.</p>${icon("arrow")}</a><a href="#about"><span>Bring this context to an agent</span><p>Inspect the sources and use the read-only connector.</p>${icon("arrow")}</a></section>
+  <details class="secondary-detail"><summary>Recent public updates <span>${signals.length} examples · Checked ${esc(date(r.checkedAt))}</span></summary><div class="signal-list">${signals.map(signalCard).join("")}</div></details>`;
 }
 function signalCard(s) {
   const c = company(s.companyId);
@@ -231,7 +229,7 @@ function companyRows() {
 function companies() {
   const r = state.research;
   const sectors = [...new Set(r.companies.map((c) => c.sector))].sort();
-  return `${heading("Company universe", "The companies behind the thesis.", "A curated map of public portfolio companies and independent research candidates.")}<div class="toolbar"><div class="filters" role="group" aria-label="Company relationship">${[
+  return `${heading("Companies", "Choose a company to investigate.", "Open a profile to see what it does, why it matters, and what to ask its founders.")}<div class="toolbar"><div class="filters" role="group" aria-label="Company relationship">${[
     ["all", "All companies"],
     ["portfolio", "Public portfolio"],
     ["research", "Research candidates"],
@@ -242,10 +240,10 @@ function companies() {
     )
     .join(
       "",
-    )}</div><select id="sector-filter" class="select" aria-label="Filter by sector"><option value="all">All sectors</option>${sectors.map((s) => `<option value="${esc(s)}" ${state.sector === s ? "selected" : ""}>${esc(s)}</option>`).join("")}</select><label class="search-field">${icon("search")}<input id="company-search" type="search" value="${esc(state.query)}" placeholder="Search companies or bottlenecks" aria-label="Search companies"></label></div><div class="table-wrap" id="company-results">${companyRows()}</div><p class="small-copy muted stack-space">Portfolio relationships follow Anti Fund’s public website. Research candidates are included for investigation; inclusion does not imply an investment, endorsement, or private relationship.</p>`;
+    )}</div><select id="sector-filter" class="select" aria-label="Filter by sector"><option value="all">All sectors</option>${sectors.map((s) => `<option value="${esc(s)}" ${state.sector === s ? "selected" : ""}>${esc(s)}</option>`).join("")}</select><label class="search-field">${icon("search")}<input id="company-search" type="search" value="${esc(state.query)}" placeholder="Search companies or topics" aria-label="Search companies"></label></div><div class="table-wrap" id="company-results">${companyRows()}</div><p class="small-copy muted stack-space">Portfolio relationships follow Anti Fund’s public website. Research candidates are included for investigation; inclusion does not imply an investment, endorsement, or private relationship.</p>`;
 }
 function research() {
-  return `${heading("Evidence → Insight → Judgment", "Research that shows its work.", "Original hypotheses, grounded in public sources. Open questions stay open.")}<div class="brief-grid">${state.research.briefs.map((b, i) => `<article class="research-card"><span class="eyebrow">0${i + 1} / Research hypothesis</span><h2>${esc(b.title)}</h2><p>${esc(b.summary)}</p><footer>${b.companyIds.length} companies · ${b.sourceIds.length} sources · ${b.questions.length} open questions</footer>${btn("open-brief", `Explore the research ${icon("arrow")}`, "", `data-id="${esc(b.id)}"`)}</article>`).join("")}<article class="research-card" style="background:var(--surface)"><span class="eyebrow">Your next research question</span><h2>Where would you look next?</h2><p>Take a thesis, challenge an assumption, or write a question worth asking a founder. Keep the evidence and your judgment together.</p>${btn("new-note", `${icon("plus")} Start a research note`)}</article></div>`;
+  return `${heading("Research briefs", "Three questions worth investigating.", "Each brief explains an idea, links the evidence, and suggests what to investigate next.")}<div class="brief-grid">${state.research.briefs.map((b, i) => `<article class="research-card"><span class="eyebrow">0${i + 1} / Research hypothesis</span><h2>${esc(b.title)}</h2><p>${esc(b.summary)}</p><footer>${b.companyIds.length} companies · ${b.sourceIds.length} sources · ${b.questions.length} open questions</footer>${btn("open-brief", `Read the brief ${icon("arrow")}`, "", `data-id="${esc(b.id)}"`)}</article>`).join("")}<article class="research-card" style="background:var(--surface)"><span class="eyebrow">Your next research question</span><h2>Where would you look next?</h2><p>Take a thesis, challenge an assumption, or write a question worth asking a founder. Keep the evidence and your judgment together.</p>${btn("new-note", `${icon("plus")} Start a research note`)}</article></div>`;
 }
 function workspace() {
   const isTrash = state.workspaceTab === "trash";
@@ -254,7 +252,7 @@ function workspace() {
     : state.workspace.filter(
         (r) => state.workspaceTab === "all" || r.type === state.workspaceTab,
       );
-  return `${heading("Your private research space", "Make the research your own.", "Shortlist a company, capture a question, and carry the work forward.", `<div style="display:flex;gap:8px;flex-wrap:wrap">${btn("export-workspace", `${icon("download")} Export`, "", 'aria-label="Export private workspace as JSON"')}${btn("new-note", `${icon("plus")} New note`, "primary")}</div>`)}<div class="workspace-notice">${icon("lock")}<span>Your notes are saved in a private cloud workspace linked to a 30-day browser session. Clearing the cookie or session expiry loses access. Export a copy to keep your work. Public research remains shared and read-only.</span></div>${
+  return `${heading("Saved work", "Your shortlist and notes.", "Keep the companies and questions you want to revisit.", `<div style="display:flex;gap:8px;flex-wrap:wrap">${btn("export-workspace", `${icon("download")} Export`, "", 'aria-label="Export private workspace as JSON"')}${btn("new-note", `${icon("plus")} New note`, "primary")}</div>`)}<details class="session-detail"><summary>${icon("lock")} Private to this browser · Saved in the cloud</summary><p>Access lasts 30 days and depends on this browser’s cookie. Export a copy before the session expires or you clear cookies. Public research is shared and read-only.</p></details>${
     state.workspaceError
       ? `<div class="error-state"><h2>Your workspace is unavailable.</h2><p>${esc(state.workspaceError)}</p>${btn("retry-workspace", "Reconnect", "primary")}</div>`
       : `<div class="workspace-tabs" role="group" aria-label="Workspace record type">${[
@@ -270,7 +268,7 @@ function workspace() {
           )
           .join(
             "",
-          )}</div><div class="records-grid">${records.length ? records.map(recordCard).join("") : `<div class="empty-state">${icon(isTrash ? "trash" : "bookmark")}<h2>${isTrash ? "Nothing in the trash." : "A clean desk. A head start."}</h2><p>${isTrash ? "Archived records can be restored here, with their revision history intact." : "The public research is ready. Save a company to your shortlist or write your first research note."}</p>${isTrash ? "" : '<a class="button" href="#companies">Explore companies ' + icon("arrow") + "</a>"}</div>`}</div>`
+          )}</div><div class="records-grid">${records.length ? records.map(recordCard).join("") : `<div class="empty-state">${icon(isTrash ? "trash" : "bookmark")}<h2>${isTrash ? "Nothing in the trash." : "Keep something worth following up."}</h2><p>${isTrash ? "Archived records can be restored here, with their revision history intact." : "Open a company and choose Save to shortlist, or capture your own question here."}</p>${isTrash ? "" : '<a class="button" href="#companies">Explore companies ' + icon("arrow") + "</a>"}</div>`}</div>`
   }`;
 }
 function recordCard(r) {
@@ -346,7 +344,7 @@ function openCompany(id) {
     (r) => r.type === "watchlist" && r.companyId === id,
   );
   openDialog(
-    `<div class="dialog-company-title">${mark(c)}<div><h1>${esc(c.name)}</h1><div class="domain">${esc(c.domain)} · ${esc(c.sector)}</div></div></div>${relationship(c)}<p class="detail-subtitle">${esc(c.summary)}</p><div class="detail-actions">${saved ? btn("edit-record", `${icon("check")} On your shortlist`, "", `data-id="${esc(saved.id)}"`) : btn("shortlist", `${icon("bookmark")} Save to shortlist`, "primary", `data-id="${esc(c.id)}"`)}${btn("new-note", `${icon("plus")} Research note`, "", `data-company-id="${esc(c.id)}"`)}${btn("build-brief", `${icon("research")} Build source brief`, "", `data-id="${esc(c.id)}"`)}</div><div class="detail-grid"><section class="detail-section"><span class="eyebrow">Bottleneck</span><h2 style="margin-top:8px">${esc(c.bottleneck)}</h2></section><section class="detail-section"><span class="eyebrow">Thesis fit / interpretation</span><p style="margin-top:8px">${esc(c.thesisFit)}</p></section></div><div class="provenance-note">${c.relationship === "portfolio" ? "Listed in Anti Fund’s public portfolio. Investment date, ownership, stage, and private performance are not established by this snapshot." : "Independent research candidate. This prototype does not establish an Anti Fund investment or relationship."}</div><div class="detail-grid"><section class="detail-section"><h2>Questions for a founder</h2>${list(c.questions)}</section><section class="detail-section"><h2>What to pressure-test</h2>${list(c.risks)}</section></div>${
+    `<div class="dialog-company-title">${mark(c)}<div><h1>${esc(c.name)}</h1><div class="domain">${esc(c.domain)} · ${esc(c.sector)}</div></div></div>${relationship(c)}<p class="detail-subtitle">${esc(c.summary)}</p><div class="detail-actions">${saved ? btn("edit-record", `${icon("check")} On your shortlist`, "", `data-id="${esc(saved.id)}"`) : btn("shortlist", `${icon("bookmark")} Save to shortlist`, "primary", `data-id="${esc(c.id)}"`)}${btn("new-note", `${icon("plus")} Research note`, "", `data-company-id="${esc(c.id)}"`)}${btn("build-brief", `${icon("research")} Build source brief`, "", `data-id="${esc(c.id)}"`)}</div><div class="detail-grid"><section class="detail-section"><span class="eyebrow">Problem it addresses</span><h2 style="margin-top:8px">${esc(c.bottleneck)}</h2></section><section class="detail-section"><span class="eyebrow">Why investigate it</span><p style="margin-top:8px">${esc(c.thesisFit)}</p></section></div><div class="provenance-note">${c.relationship === "portfolio" ? "Listed in Anti Fund’s public portfolio. Investment date, ownership, stage, and private performance are not established by this snapshot." : "Independent research candidate. This prototype does not establish an Anti Fund investment or relationship."}</div><div class="detail-grid"><section class="detail-section"><h2>Questions for a founder</h2>${list(c.questions)}</section><section class="detail-section"><h2>What to pressure-test</h2>${list(c.risks)}</section></div>${
       state.research.signals.some((s) => s.companyId === id)
         ? `<section class="detail-section"><h2>Public observations</h2>${state.research.signals
             .filter((s) => s.companyId === id)
@@ -358,12 +356,19 @@ function openCompany(id) {
   );
 }
 function openBrief(id) {
-  const b = state.research.briefs.find((x) => x.id === id);
+  const b = state.research.briefs.find(x => x.id === id);
   if (!b) return;
-  openDialog(
-    `<div class="eyebrow" style="color:var(--red);margin-bottom:14px">Original research / Hypothesis</div><h1>${esc(b.title)}</h1><p class="detail-subtitle">${esc(b.subtitle || b.summary)}</p><div class="provenance-note">This is an original research hypothesis assembled from public evidence. It is not an Anti Fund investment recommendation or a completed diligence conclusion.</div>${chips(b.companyIds)}<p class="detail-subtitle">${esc(b.summary)}</p>${b.sections.map((s) => `<section class="detail-section"><h2>${esc(s.title)}</h2><p>${esc(s.body)}</p>${citations(s.sourceIds)}</section>`).join("")}<div class="detail-grid"><section class="detail-section"><h2>Counterpoints</h2>${list(b.counterpoints)}</section><section class="detail-section"><h2>Questions to pursue</h2>${list(b.questions)}</section></div><div class="detail-actions">${btn("brief-note", `${icon("plus")} Explore this thesis in a note`, "primary", `data-id="${esc(b.id)}"`)}${btn("export-brief", `${icon("download")} Export Markdown`, "", `data-id="${esc(b.id)}"`)}</div><section class="detail-section"><h2>Evidence & attribution</h2>${evidence(b.sourceIds)}</section>`,
-    "Research brief",
-  );
+  const sections = b.sections;
+  openDialog(`<div class="eyebrow">Research brief · ${b.sourceIds.length} sources</div><h1>${esc(b.title)}</h1>
+  <p class="detail-subtitle">${esc(b.summary.replace(/^Research hypothesis: /,'').replace(/^./, c => c.toUpperCase()))}</p>
+  <p class="brief-qualification">A research hypothesis based on public company material. It still needs independent testing.</p>
+  <section class="brief-step"><span>01</span><div><h2>What we found</h2><p>${esc(sections[0]?.body || b.summary)}</p>${citations(sections[0]?.sourceIds || b.sourceIds)}</div></section>
+  <section class="brief-step"><span>02</span><div><h2>What could prove this wrong?</h2>${list(b.counterpoints)}</div></section>
+  <section class="brief-step"><span>03</span><div><h2>What to ask next</h2>${list(b.questions)}</div></section>
+  <div class="detail-actions">${btn("brief-note", `${icon("plus")} Draft follow-up questions`, "primary", `data-id="${esc(b.id)}"`)}${btn("export-brief", `${icon("download")} Export brief`, "", `data-id="${esc(b.id)}"`)}</div>
+  <section class="detail-section"><h2>Explore the companies</h2>${chips(b.companyIds)}</section>
+  <details class="secondary-detail"><summary>Read the full analysis</summary>${sections.slice(1).map(section=>`<section class="detail-section"><h2>${esc(section.title)}</h2><p>${esc(section.body)}</p>${citations(section.sourceIds)}</section>`).join('')}</details>
+  <details class="secondary-detail"><summary>View all ${b.sourceIds.length} sources</summary>${evidence(b.sourceIds)}</details>`, "Research brief");
 }
 function openThesis(id) {
   const t = state.research.theses.find((x) => x.id === id);
