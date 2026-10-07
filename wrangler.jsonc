@@ -1,0 +1,26 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "antifund-hq",
+  "main": "apps/worker/index.js",
+  "compatibility_date": "2026-10-01",
+  "compatibility_flags": ["nodejs_compat"],
+  "workers_dev": true,
+  "preview_urls": false,
+  "assets": {
+    "directory": "./dist",
+    "binding": "ASSETS",
+    "run_worker_first": true,
+    "not_found_handling": "single-page-application"
+  },
+  "d1_databases": [{
+    "binding": "DB",
+    "database_name": "antifund-hq",
+    "database_id": "ad116c51-0747-401e-a813-ba5eb7b29258",
+    "migrations_dir": "migrations"
+  }],
+  "observability": {"enabled": true},
+  "vars": {
+    "APP_NAME": "Anti Fund HQ",
+    "REPOSITORY_URL": "https://github.com/jeremyjv/antifund-hq"
+  }
+}

@@ -1,0 +1,34 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <meta name="theme-color" content="#faf8f1" />
+    <meta
+      name="description"
+      content="An independent Anti Fund HQ prototype. Source-backed company research, investment theses, and a private cloud workspace."
+    />
+    <title>Anti Fund HQ — Overview</title>
+    <link rel="icon" href="/assets/favicon.png" />
+    <link
+      rel="preload"
+      href="/assets/plex-sans.woff2"
+      as="font"
+      type="font/woff2"
+      crossorigin
+    />
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+  <body>
+    <a class="skip-link" href="#main">Skip to content</a>
+    <div id="app">
+      <div class="initial-loader">
+        <span class="eyebrow">ANTI FUND / HQ</span>
+        <p>Opening your research workspace…</p>
+      </div>
+    </div>
+    <div id="toast" role="status" aria-live="polite"></div>
+    <dialog id="detail-dialog" aria-label="Research detail"></dialog>
+    <script type="module" src="/app.js"></script>
+  </body>
+</html>

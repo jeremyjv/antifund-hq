@@ -1,0 +1,37 @@
+{
+  "name": "antifund-hq",
+  "private": true,
+  "version": "0.1.0",
+  "description": "An independent, source-grounded investment research workspace built for Anti Fund.",
+  "type": "module",
+  "engines": {
+    "node": ">=22.13 <23"
+  },
+  "scripts": {
+    "build": "node scripts/build.mjs",
+    "dev": "npm run build && wrangler dev --port 4321",
+    "test": "node --test tests/*.test.js",
+    "check": "npm run build && npm test && node scripts/validate-seed.mjs",
+    "db:local": "wrangler d1 migrations apply DB --local",
+    "seed:local": "node scripts/seed.mjs --local",
+    "db:remote": "node scripts/cloudflare.mjs d1 migrations apply DB --remote",
+    "seed:remote": "node scripts/seed.mjs --remote",
+    "deploy": "npm run build && node scripts/cloudflare.mjs deploy",
+    "eval": "node scripts/evaluate-context.mjs"
+  },
+  "dependencies": {
+    "zod": "4.6.4"
+  },
+  "devDependencies": {
+    "esbuild": "0.28.2",
+    "miniflare": "^5.20261006.0-alpha",
+    "wrangler": "^4.148.0"
+  },
+  "overrides": {
+    "sharp": "0.35.5"
+  },
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ]
+}

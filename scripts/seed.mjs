@@ -1,0 +1,14 @@
+import {readFile,mkdir,writeFile} from 'node:fs/promises';
+import {spawnSync} from 'node:child_process';
+import {validateSeed} from './validate-seed.mjs';
+const target=process.argv[2];
+if(!['--local','--remote'].includes(target))throw new Error('Choose --local or --remote explicitly.');
+const seed=JSON.parse(await readFile('data/research-seed.json','utf8'));
+validateSeed(seed);
+const sqlString=value=>"'"+String(value).replaceAll("'","''")+"'";
+const sql=`INSERT INTO public_catalog (id,data,version,updated_at) VALUES ('public-research',${sqlString(JSON.stringify(seed))},1,${sqlString(seed.checkedAt)}) ON CONFLICT(id) DO UPDATE SET data=excluded.data,version=public_catalog.version+1,updated_at=excluded.updated_at;\n`;
+await mkdir('work',{recursive:true});
+await writeFile('work/seed.sql',sql);
+const command=target==='--remote'?'scripts/cloudflare.mjs':'node_modules/wrangler/bin/wrangler.js';
+const result=spawnSync(process.execPath,[command,'d1','execute','DB',target,'--file','work/seed.sql'],{stdio:'inherit',env:process.env});
+process.exitCode=result.status??1;

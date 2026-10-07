@@ -1,0 +1,931 @@
+{
+  "checkedAt": "2026-10-07",
+  "sources": [
+    {
+      "id": "af-manifesto",
+      "title": "Anti Fund Manifesto — September 2026",
+      "url": "https://antifund.com/manifesto",
+      "publisher": "Anti Fund",
+      "publishedAt": "2026-09",
+      "checkedAt": "2026-10-07"
+    },
+    {
+      "id": "af-portfolio",
+      "title": "Selected investments",
+      "url": "https://antifund.com/",
+      "publisher": "Anti Fund",
+      "publishedAt": null,
+      "checkedAt": "2026-10-07"
+    },
+    {
+      "id": "efference",
+      "title": "Robotic perception and compute",
+      "url": "https://efference.ai/",
+      "publisher": "Efference",
+      "publishedAt": null,
+      "checkedAt": "2026-10-07"
+    },
+    {
+      "id": "efference-h1",
+      "title": "H1 technical specifications",
+      "url": "https://efference.ai/h1/",
+      "publisher": "Efference",
+      "publishedAt": null,
+      "checkedAt": "2026-10-07"
+    },
+    {
+      "id": "westmag",
+      "title": "American motors and actuators",
+      "url": "https://www.westmag.com/",
+      "publisher": "Westmag",
+      "publishedAt": null,
+      "checkedAt": "2026-10-07"
+    },
+    {
+      "id": "etched",
+      "title": "Frontier inference clusters",
+      "url": "https://www.etched.com/",
+      "publisher": "Etched",
+      "publishedAt": null,
+      "checkedAt": "2026-10-07"
+    },
+    {
+      "id": "modal",
+      "title": "Production AI infrastructure",
+      "url": "https://modal.com/",
+      "publisher": "Modal",
+      "publishedAt": null,
+      "checkedAt": "2026-10-07"
+    },
+    {
+      "id": "modal-clusters",
+      "title": "Modal Clusters are generally available",
+      "url": "https://modal.com/blog/modal-clusters-generally-available",
+      "publisher": "Modal",
+      "publishedAt": "2026-10-01",
+      "checkedAt": "2026-10-07"
+    },
+    {
+      "id": "gm-tech",
+      "title": "Nuclear fuel enrichment technology",
+      "url": "https://generalmatter.com/technology/",
+      "publisher": "General Matter",
+      "publishedAt": null,
+      "checkedAt": "2026-10-07"
+    },
+    {
+      "id": "gm-nrc",
+      "title": "Filed: NRC License Application",
+      "url": "https://generalmatter.com/news/submitted-our-first-nrc-license/",
+      "publisher": "General Matter",
+      "publishedAt": "2026-09-28",
+      "checkedAt": "2026-10-07"
+    },
+    {
+      "id": "helion",
+      "title": "Fusion power development",
+      "url": "https://www.helionenergy.com/",
+      "publisher": "Helion",
+      "publishedAt": null,
+      "checkedAt": "2026-10-07"
+    },
+    {
+      "id": "helion-orion",
+      "title": "Orion plant development and Microsoft agreement",
+      "url": "https://www.helionenergy.com/orion",
+      "publisher": "Helion",
+      "publishedAt": null,
+      "checkedAt": "2026-10-07"
+    },
+    {
+      "id": "foxglove",
+      "title": "Robot data collection, debugging, and curation",
+      "url": "https://foxglove.dev/",
+      "publisher": "Foxglove",
+      "publishedAt": null,
+      "checkedAt": "2026-10-07"
+    },
+    {
+      "id": "foxglove-mcap",
+      "title": "MCAP open source repository",
+      "url": "https://github.com/foxglove/mcap",
+      "publisher": "Foxglove",
+      "publishedAt": null,
+      "checkedAt": "2026-10-07"
+    },
+    {
+      "id": "rerun",
+      "title": "Multimodal robotics data layer",
+      "url": "https://rerun.io/",
+      "publisher": "Rerun",
+      "publishedAt": null,
+      "checkedAt": "2026-10-07"
+    },
+    {
+      "id": "rerun-github",
+      "title": "Rerun open source repository",
+      "url": "https://github.com/rerun-io/rerun",
+      "publisher": "Rerun",
+      "publishedAt": null,
+      "checkedAt": "2026-10-07"
+    },
+    {
+      "id": "skild",
+      "title": "General-purpose robotic intelligence",
+      "url": "https://www.skild.ai/",
+      "publisher": "Skild AI",
+      "publishedAt": null,
+      "checkedAt": "2026-10-07"
+    },
+    {
+      "id": "skild-s1",
+      "title": "Introducing S1: In-Context Learning for Robotics",
+      "url": "https://www.skild.ai/blogs/s1",
+      "publisher": "Skild AI",
+      "publishedAt": "2026-08-18",
+      "checkedAt": "2026-10-07"
+    },
+    {
+      "id": "skild-blog",
+      "title": "Research publication index",
+      "url": "https://www.skild.ai/blogs",
+      "publisher": "Skild AI",
+      "publishedAt": null,
+      "checkedAt": "2026-10-07"
+    },
+    {
+      "id": "skild-play",
+      "title": "Physical Self-Play",
+      "url": "https://www.skild.ai/blogs/physical-self-play",
+      "publisher": "Skild AI",
+      "publishedAt": "2026-09-23",
+      "checkedAt": "2026-10-07"
+    },
+    {
+      "id": "bedrock",
+      "title": "Autonomy for construction equipment",
+      "url": "https://bedrockrobotics.com/",
+      "publisher": "Bedrock Robotics",
+      "publishedAt": null,
+      "checkedAt": "2026-10-07"
+    },
+    {
+      "id": "bedrock-fleets",
+      "title": "Building Fully Autonomous Fleets with the Crews Who Need Them",
+      "url": "https://bedrockrobotics.com/news/building-fully-autonomous-fleets-with-the-crews-who-need-them",
+      "publisher": "Bedrock Robotics",
+      "publishedAt": null,
+      "checkedAt": "2026-10-07"
+    },
+    {
+      "id": "lerobot",
+      "title": "LeRobot documentation",
+      "url": "https://huggingface.co/docs/lerobot/index",
+      "publisher": "Hugging Face",
+      "publishedAt": null,
+      "checkedAt": "2026-10-07"
+    },
+    {
+      "id": "lerobot-github",
+      "title": "LeRobot open source repository",
+      "url": "https://github.com/huggingface/lerobot",
+      "publisher": "Hugging Face",
+      "publishedAt": null,
+      "checkedAt": "2026-10-07"
+    }
+  ],
+  "companies": [
+    {
+      "id": "efference",
+      "name": "Efference",
+      "domain": "efference.ai",
+      "sector": "Robotics infrastructure",
+      "stage": null,
+      "relationship": "portfolio",
+      "summary": "Builds synchronized sensing and compute devices for robotics data collection, teleoperation, and inference.",
+      "bottleneck": "Reliable robot perception",
+      "thesisFit": "Research angle: consistent sensor timing could reduce integration friction across the robotics learning loop.",
+      "sourceIds": [
+        "af-portfolio",
+        "efference",
+        "efference-h1"
+      ],
+      "tags": [
+        "Perception",
+        "Hardware",
+        "Cloud inference"
+      ],
+      "questions": [
+        "What are measured end-to-end latency tails under congested wireless conditions?",
+        "How does the robot behave when cloud connectivity drops?"
+      ],
+      "risks": [
+        "Published specifications are company claims; independent field reliability is unknown.",
+        "A common device stack may struggle across different robot environments."
+      ]
+    },
+    {
+      "id": "westmag",
+      "name": "Westmag",
+      "domain": "westmag.com",
+      "sector": "Motors & actuators",
+      "stage": null,
+      "relationship": "portfolio",
+      "summary": "Designs and manufactures drone motors and robot actuators in South San Francisco.",
+      "bottleneck": "Scalable domestic actuation",
+      "thesisFit": "Research angle: manufacturing repeatability and supply resilience could matter as much as motor design.",
+      "sourceIds": [
+        "af-portfolio",
+        "westmag"
+      ],
+      "tags": [
+        "Manufacturing",
+        "Actuation",
+        "Domestic supply"
+      ],
+      "questions": [
+        "What are production yield, lead time, and failure rates at customer duty cycles?",
+        "Which input materials remain dependent on single suppliers?"
+      ],
+      "risks": [
+        "Customer qualification and production economics are not established by the public website.",
+        "Domestic assembly alone does not establish resilience throughout the supply chain."
+      ]
+    },
+    {
+      "id": "etched",
+      "name": "Etched",
+      "domain": "etched.com",
+      "sector": "Inference infrastructure",
+      "stage": null,
+      "relationship": "portfolio",
+      "summary": "Develops integrated chips, racks, and software for AI inference.",
+      "bottleneck": "Inference power and memory",
+      "thesisFit": "Research angle: examine whether system-level efficiency survives real model mixes and deployment constraints.",
+      "sourceIds": [
+        "af-portfolio",
+        "etched"
+      ],
+      "tags": [
+        "Silicon",
+        "Inference",
+        "Power efficiency"
+      ],
+      "questions": [
+        "What is independently measured throughput per watt at matched latency and model quality?",
+        "How broad is model support and how costly are architecture changes?"
+      ],
+      "risks": [
+        "Public performance statements require customer-side replication.",
+        "Hardware specialization can expose buyers to model and supply-chain risk."
+      ]
+    },
+    {
+      "id": "modal",
+      "name": "Modal",
+      "domain": "modal.com",
+      "sector": "Cloud infrastructure",
+      "stage": null,
+      "relationship": "portfolio",
+      "summary": "Provides cloud compute for AI training, inference, and isolated agent execution.",
+      "bottleneck": "Access to usable compute",
+      "thesisFit": "Research angle: scheduling and operational simplicity may become a control point between scarce compute and small research teams.",
+      "sourceIds": [
+        "af-portfolio",
+        "modal",
+        "modal-clusters"
+      ],
+      "tags": [
+        "Training",
+        "GPU infrastructure",
+        "Developer tools"
+      ],
+      "questions": [
+        "How predictable are queue time and capacity during correlated demand spikes?",
+        "What fraction of customer savings survives data movement and idle checkpoints?"
+      ],
+      "risks": [
+        "GPU access and cloud portability need workload-specific validation.",
+        "Public customer examples do not reveal retention or unit economics."
+      ]
+    },
+    {
+      "id": "general-matter",
+      "name": "General Matter",
+      "domain": "generalmatter.com",
+      "sector": "Nuclear fuel",
+      "stage": null,
+      "relationship": "portfolio",
+      "summary": "Develops domestic uranium enrichment infrastructure for nuclear fuel.",
+      "bottleneck": "Domestic enrichment capacity",
+      "thesisFit": "Research angle: fuel availability is a separate constraint from reactor design and should be tracked on its own timeline.",
+      "sourceIds": [
+        "af-portfolio",
+        "gm-tech",
+        "gm-nrc"
+      ],
+      "tags": [
+        "Energy",
+        "Fuel supply",
+        "Industrial capacity"
+      ],
+      "questions": [
+        "Which licensing, equipment, and commissioning milestones are on the critical path?",
+        "How much proposed output has enforceable customer commitments?"
+      ],
+      "risks": [
+        "Submitting a license application does not mean approval.",
+        "Company production targets remain forward-looking."
+      ]
+    },
+    {
+      "id": "helion",
+      "name": "Helion",
+      "domain": "helionenergy.com",
+      "sector": "Fusion energy",
+      "stage": null,
+      "relationship": "portfolio",
+      "summary": "Develops fusion machines and the Orion power plant, intended to supply electricity to the grid.",
+      "bottleneck": "Commercial firm power",
+      "thesisFit": "Research angle: distinguish technical experiments, plant construction, and contracted electricity delivery.",
+      "sourceIds": [
+        "af-portfolio",
+        "helion",
+        "helion-orion"
+      ],
+      "tags": [
+        "Energy",
+        "Fusion",
+        "Power generation"
+      ],
+      "questions": [
+        "What net-electricity evidence is available under repeatable operating conditions?",
+        "Which construction, component-lifetime, and grid milestones determine delivery?"
+      ],
+      "risks": [
+        "Construction and a power agreement do not establish commercial generation.",
+        "The stated 2028 initial-operation target is a company projection."
+      ]
+    },
+    {
+      "id": "foxglove",
+      "name": "Foxglove",
+      "domain": "foxglove.dev",
+      "sector": "Robotics data",
+      "stage": null,
+      "relationship": "research",
+      "summary": "Provides tools to collect, inspect, search, and curate robot data, with cloud and self-hosted deployment options.",
+      "bottleneck": "Finding useful fleet evidence",
+      "thesisFit": "Research angle: study the handoff from a robot failure to a reusable training example.",
+      "sourceIds": [
+        "foxglove",
+        "foxglove-mcap"
+      ],
+      "tags": [
+        "Data infrastructure",
+        "Fleet operations",
+        "Observability"
+      ],
+      "questions": [
+        "How much does incident-to-dataset time improve on a representative customer workflow?",
+        "Which integrations create lasting value beyond a visualization interface?"
+      ],
+      "risks": [
+        "Company case studies may not generalize across fleets.",
+        "Open formats can support adoption while reducing switching costs."
+      ]
+    },
+    {
+      "id": "rerun",
+      "name": "Rerun",
+      "domain": "rerun.io",
+      "sector": "Robotics data",
+      "stage": null,
+      "relationship": "research",
+      "summary": "Builds open source tooling and a production backend for logging, querying, visualizing, and training on multimodal robot data.",
+      "bottleneck": "Queryable multimodal recordings",
+      "thesisFit": "Research angle: assess whether data access and transformation become a recurring infrastructure budget.",
+      "sourceIds": [
+        "rerun",
+        "rerun-github"
+      ],
+      "tags": [
+        "Open source",
+        "Data infrastructure",
+        "Training"
+      ],
+      "questions": [
+        "How do retrieval cost and training throughput change on a large heterogeneous dataset?",
+        "Where do users move from the open SDK to paid infrastructure?"
+      ],
+      "risks": [
+        "Open source usage alone does not establish commercial adoption.",
+        "A flexible toolkit may require more integration than a packaged platform."
+      ]
+    },
+    {
+      "id": "skild-ai",
+      "name": "Skild AI",
+      "domain": "skild.ai",
+      "sector": "Robot foundation models",
+      "stage": null,
+      "relationship": "research",
+      "summary": "Develops robot intelligence intended to operate across embodiments and tasks.",
+      "bottleneck": "Transfer from learning to deployment",
+      "thesisFit": "Research angle: use model progress to identify the data, evaluation, and deployment tools it requires.",
+      "sourceIds": [
+        "skild",
+        "skild-s1",
+        "skild-blog",
+        "skild-play"
+      ],
+      "tags": [
+        "Foundation models",
+        "Simulation",
+        "Robot learning"
+      ],
+      "questions": [
+        "What are unassisted task-completion and intervention rates on held-out customer sites?",
+        "Which test conditions differ materially from the training distribution?"
+      ],
+      "risks": [
+        "Internal benchmarks and demonstrations need independent reproduction.",
+        "Long-horizon task success and cumulative step scores answer different questions."
+      ]
+    },
+    {
+      "id": "bedrock-robotics",
+      "name": "Bedrock Robotics",
+      "domain": "bedrockrobotics.com",
+      "sector": "Construction autonomy",
+      "stage": null,
+      "relationship": "research",
+      "summary": "Develops autonomy for construction equipment, beginning with excavators.",
+      "bottleneck": "Productive deployment on active sites",
+      "thesisFit": "Research angle: evaluate integration with crews and site workflows alongside autonomous capability.",
+      "sourceIds": [
+        "bedrock",
+        "bedrock-fleets"
+      ],
+      "tags": [
+        "Deployment",
+        "Construction",
+        "Retrofit autonomy"
+      ],
+      "questions": [
+        "What is productive output per supervised hour across weather and soil conditions?",
+        "How are site changes, mixed traffic, and human handoffs handled?"
+      ],
+      "risks": [
+        "Company deployment reports do not establish fleet-wide economics.",
+        "Reliability must hold across job sites rather than a single demonstration."
+      ]
+    },
+    {
+      "id": "hugging-face",
+      "name": "Hugging Face",
+      "domain": "huggingface.co",
+      "sector": "Open robotics ecosystem",
+      "stage": null,
+      "relationship": "research",
+      "summary": "Maintains LeRobot tooling for robot control, shared datasets, policy training, and deployment.",
+      "bottleneck": "Accessible robot learning workflows",
+      "thesisFit": "Research angle: use open tooling as a baseline for judging the value of proprietary infrastructure.",
+      "sourceIds": [
+        "lerobot",
+        "lerobot-github"
+      ],
+      "tags": [
+        "Open source",
+        "Datasets",
+        "Robot learning"
+      ],
+      "questions": [
+        "Which production needs remain unsolved after using the open stack?",
+        "What does an independent reproduction reveal about data and integration effort?"
+      ],
+      "risks": [
+        "Community activity is not a proxy for deployment success.",
+        "An ecosystem reference is not necessarily an investable opportunity."
+      ]
+    }
+  ],
+  "signals": [
+    {
+      "id": "modal-clusters-ga",
+      "companyId": "modal",
+      "title": "Multi-node compute becomes a simpler primitive",
+      "summary": "Modal announced general availability of Clusters, combining multi-node scheduling and RDMA networking. Its post includes a 1X robotics training example.",
+      "sourceIds": [
+        "modal-clusters"
+      ],
+      "observedAt": "2026-10-01",
+      "kind": "Product release"
+    },
+    {
+      "id": "gm-license",
+      "companyId": "general-matter",
+      "title": "Enrichment moves into a licensing milestone",
+      "summary": "General Matter reported filing its first NRC license application for Paducah. The filing is a milestone, not an approval or operating plant.",
+      "sourceIds": [
+        "gm-nrc"
+      ],
+      "observedAt": "2026-09-28",
+      "kind": "Company milestone"
+    },
+    {
+      "id": "skild-self-play",
+      "companyId": "skild-ai",
+      "title": "A new route from simulated play to hardware",
+      "summary": "Skild reported a robot soccer policy trained through simulated self-play and transferred to hardware. Commercial task generalization remains an open question.",
+      "sourceIds": [
+        "skild-play"
+      ],
+      "observedAt": "2026-09-23",
+      "kind": "Research release"
+    },
+    {
+      "id": "skild-s1-release",
+      "companyId": "skild-ai",
+      "title": "Video prompting raises an evaluation question",
+      "summary": "Skild introduced S1 for learning tasks from video demonstrations. Its internal study uses cumulative step scoring with intervention recovery, so request unassisted completion data separately.",
+      "sourceIds": [
+        "skild-s1",
+        "skild-blog"
+      ],
+      "observedAt": "2026-08-18",
+      "kind": "Research release"
+    },
+    {
+      "id": "efference-h1-product",
+      "companyId": "efference",
+      "title": "Perception designed around remote inference",
+      "summary": "The H1 product page lists September 2026 limited production and describes synchronized stereo sensors with off-device inference. Exact publication day is unavailable.",
+      "sourceIds": [
+        "efference-h1"
+      ],
+      "observedAt": null,
+      "kind": "Product evidence"
+    },
+    {
+      "id": "westmag-factory",
+      "companyId": "westmag",
+      "title": "Actuation enters the factory question",
+      "summary": "Westmag describes production and testing ramp-up in South San Francisco. Yield, shipment volumes, and customer qualification need further diligence.",
+      "sourceIds": [
+        "westmag"
+      ],
+      "observedAt": null,
+      "kind": "Manufacturing evidence"
+    },
+    {
+      "id": "foxglove-data-loop",
+      "companyId": "foxglove",
+      "title": "Robot logs become a shared investigation surface",
+      "summary": "Foxglove documents collection, debugging, search, and dataset curation around robot recordings. Test the complete workflow using an actual failure case.",
+      "sourceIds": [
+        "foxglove"
+      ],
+      "observedAt": null,
+      "kind": "Product evidence"
+    },
+    {
+      "id": "rerun-query-train",
+      "companyId": "rerun",
+      "title": "The data layer reaches into training",
+      "summary": "Rerun describes a queryable catalog and direct streaming of selected recording data into training. Benchmark against an export-based workflow.",
+      "sourceIds": [
+        "rerun"
+      ],
+      "observedAt": null,
+      "kind": "Product evidence"
+    },
+    {
+      "id": "bedrock-field",
+      "companyId": "bedrock-robotics",
+      "title": "Autonomy meets an active construction site",
+      "summary": "Bedrock reports fully autonomous excavator operation on active commercial sites. The source does not provide a publication date or independent fleet-level performance audit.",
+      "sourceIds": [
+        "bedrock-fleets"
+      ],
+      "observedAt": null,
+      "kind": "Deployment evidence"
+    },
+    {
+      "id": "helion-orion-timeline",
+      "companyId": "helion",
+      "title": "Separate the power promise from delivery",
+      "summary": "Helion describes Orion construction and a Microsoft power agreement with initial operation targeted for 2028. This is a development timeline, not delivered power.",
+      "sourceIds": [
+        "helion-orion"
+      ],
+      "observedAt": null,
+      "kind": "Infrastructure evidence"
+    },
+    {
+      "id": "etched-rack",
+      "companyId": "etched",
+      "title": "Inference economics move beyond a chip",
+      "summary": "Etched describes rack-scale hardware, software, and manufacturing co-design. Compare measured system performance rather than isolated peak specifications.",
+      "sourceIds": [
+        "etched"
+      ],
+      "observedAt": null,
+      "kind": "Product evidence"
+    },
+    {
+      "id": "lerobot-baseline",
+      "companyId": "hugging-face",
+      "title": "An open baseline for the robotics workflow",
+      "summary": "LeRobot documents a full path from demonstrations to trained policies and deployment. It provides a practical comparison point for proprietary tooling.",
+      "sourceIds": [
+        "lerobot"
+      ],
+      "observedAt": null,
+      "kind": "Open source evidence"
+    }
+  ],
+  "briefs": [
+    {
+      "id": "brief-data-loop",
+      "title": "The next robotics bottleneck may be the data loop",
+      "subtitle": "A research question between model progress and reliable deployment.",
+      "bottleneck": "Turning fleet experience into reusable learning",
+      "summary": "Research hypothesis: better robot models increase the value of infrastructure that traces failures, selects useful examples, and verifies improvements. Study the workflow around the model, then test whether it supports a durable business.",
+      "companyIds": [
+        "skild-ai",
+        "foxglove",
+        "rerun",
+        "hugging-face",
+        "efference"
+      ],
+      "sourceIds": [
+        "skild-s1",
+        "skild-play",
+        "foxglove",
+        "rerun",
+        "lerobot",
+        "efference",
+        "lerobot-github",
+        "foxglove-mcap",
+        "rerun-github"
+      ],
+      "sections": [
+        {
+          "title": "What the evidence says",
+          "body": "Skild publishes progress in video-conditioned learning and self-play. Foxglove and Rerun offer different ways to manage robot recordings; LeRobot makes a training-and-deployment baseline accessible. Together these sources define a researchable stack, not proof that one company captures its value.",
+          "sourceIds": [
+            "skild-s1",
+            "skild-play",
+            "foxglove",
+            "rerun",
+            "lerobot"
+          ]
+        },
+        {
+          "title": "The original research angle",
+          "body": "Measure the elapsed time and engineering effort from one field failure to a versioned training example and a validated policy improvement. Map where manual work persists. The opportunity is strongest where a measurable operational bottleneck survives better foundation models.",
+          "sourceIds": [
+            "foxglove",
+            "rerun",
+            "lerobot"
+          ]
+        },
+        {
+          "title": "What would change our mind",
+          "body": "The thesis weakens if an open workflow meets production needs at modest effort, or if model providers solve the data workflow internally. Skild also describes mixing data sources in-house: independent tooling must show a reason to exist beyond model access.",
+          "sourceIds": [
+            "lerobot",
+            "skild-s1"
+          ]
+        },
+        {
+          "title": "Next research step",
+          "body": "Reproduce one open robotics workflow, document each handoff, and interview users of two data approaches. Report time, failure modes, and integration effort. No benchmark or customer interview has been performed for this seed.",
+          "sourceIds": [
+            "lerobot-github",
+            "foxglove-mcap",
+            "rerun-github"
+          ]
+        }
+      ],
+      "questions": [
+        "Who owns the budget for incident investigation versus training data?",
+        "Can the same data product serve multiple robot types without extensive services?",
+        "Which measurable outcome improves after a team adopts the product?"
+      ],
+      "counterpoints": [
+        "Skild describes substantial internal data infrastructure; large model companies may build this themselves.",
+        "LeRobot and open formats provide credible alternatives that can limit pricing power.",
+        "Public product breadth does not establish retention, margins, or proprietary data rights."
+      ]
+    },
+    {
+      "id": "brief-physical-stack",
+      "title": "Before a robot scales, its physical stack has to",
+      "subtitle": "Follow the factory and the field, not only the demonstration.",
+      "bottleneck": "Repeatable hardware and dependable deployment",
+      "summary": "Research hypothesis: perception, actuation, and integration deserve their own diligence map. A capable policy becomes economically useful only when hardware can be built consistently and the deployed system handles real operating conditions.",
+      "companyIds": [
+        "westmag",
+        "efference",
+        "bedrock-robotics"
+      ],
+      "sourceIds": [
+        "af-manifesto",
+        "westmag",
+        "efference-h1",
+        "bedrock-fleets",
+        "bedrock"
+      ],
+      "sections": [
+        {
+          "title": "Three distinct control points",
+          "body": "Westmag addresses motors and actuators. Efference connects synchronized sensing to remote inference. Bedrock brings autonomy into construction workflows. These are different business models linked by deployment constraints; the seed does not establish commercial relationships among them.",
+          "sourceIds": [
+            "westmag",
+            "efference-h1",
+            "bedrock"
+          ]
+        },
+        {
+          "title": "A useful diligence instrument",
+          "body": "Build a deployment-readiness matrix: production yield, component lead time, latency tails, failure recovery, integration time, and productive hours. Preserve the test conditions behind every measurement. This makes technical judgment comparable without inventing a composite investment score.",
+          "sourceIds": [
+            "westmag",
+            "efference-h1",
+            "bedrock-fleets"
+          ]
+        },
+        {
+          "title": "Look for operational evidence",
+          "body": "A factory ramp is not shipment evidence. A product specification is not a field reliability study. A reported deployment is not proven unit economics. Prioritize supplier interviews, customer references, and repeated measurements under the same duty cycle.",
+          "sourceIds": [
+            "westmag",
+            "efference-h1",
+            "bedrock-fleets"
+          ]
+        },
+        {
+          "title": "Founder-support opportunity",
+          "body": "As a proposed workflow, record each company’s qualification partners, testing needs, or relevant hires; identify specific introductions only after the need is confirmed. Anti Fund describes recruitment and customer access as areas where its reach can help.",
+          "sourceIds": [
+            "af-manifesto"
+          ]
+        }
+      ],
+      "questions": [
+        "Which component limits deployed uptime rather than peak capability?",
+        "Where does a customer qualification cycle create a durable advantage?",
+        "Which failure mode appears only after weeks of operation?"
+      ],
+      "counterpoints": [
+        "Robotics demand can arrive unevenly across customers and applications.",
+        "OEM integration can reduce demand for independent components or tooling.",
+        "Factory investment can precede proven recurring demand."
+      ]
+    },
+    {
+      "id": "brief-power-compute",
+      "title": "Underwrite the constraint, and its clock",
+      "subtitle": "Compute, nuclear fuel, and fusion solve different timing problems.",
+      "bottleneck": "Useful compute within power and delivery constraints",
+      "summary": "Research hypothesis: map compute and energy opportunities by when they can relieve a specific customer constraint. Operational software, inference hardware, nuclear fuel, and new generation should not share one undifferentiated timeline.",
+      "companyIds": [
+        "modal",
+        "etched",
+        "general-matter",
+        "helion"
+      ],
+      "sourceIds": [
+        "modal-clusters",
+        "etched",
+        "gm-tech",
+        "gm-nrc",
+        "helion-orion",
+        "modal"
+      ],
+      "sections": [
+        {
+          "title": "Start with four separate milestones",
+          "body": "Modal has announced Clusters availability. Etched describes customer validation of inference systems. General Matter reports a license filing. Helion describes an under-construction plant and a future operating target. Each milestone requires a different next proof point.",
+          "sourceIds": [
+            "modal-clusters",
+            "etched",
+            "gm-nrc",
+            "helion-orion"
+          ]
+        },
+        {
+          "title": "The analytical framework",
+          "body": "For each company, separate technical feasibility, deliverable capacity, customer qualification, and paid production. Track dependencies and dates instead of collapsing progress into a single score. This makes delays and genuine de-risking easier to distinguish.",
+          "sourceIds": [
+            "modal-clusters",
+            "etched",
+            "gm-nrc",
+            "helion-orion"
+          ]
+        },
+        {
+          "title": "Avoid the category mistake",
+          "body": "General Matter addresses enrichment for nuclear fission fuel; Helion pursues fusion generation. Neither is automatically evidence of near-term data-center power supply. Likewise, easier access to compute does not establish a reduction in the physical power it consumes.",
+          "sourceIds": [
+            "gm-tech",
+            "helion-orion",
+            "modal"
+          ]
+        },
+        {
+          "title": "Next research step",
+          "body": "Construct a public milestone ledger and request one missing proof point per company: workload measurements, repeatable system benchmarks, licensing status, or net-electricity evidence. Independently verify before turning company reports into a decision.",
+          "sourceIds": [
+            "modal-clusters",
+            "etched",
+            "gm-nrc",
+            "helion-orion"
+          ]
+        }
+      ],
+      "questions": [
+        "What capacity can a customer actually use, on what date and under what constraints?",
+        "Which milestone removes a bottleneck rather than moving it elsewhere?",
+        "How sensitive is the business case to customer utilization and delivery delays?"
+      ],
+      "counterpoints": [
+        "More efficient compute could change the amount or timing of power demand.",
+        "A licensing filing or commercial agreement does not prove delivery.",
+        "Different technologies can relieve different constraints without becoming substitutes."
+      ]
+    }
+  ],
+  "theses": [
+    {
+      "id": "thesis-data",
+      "title": "Robot learning infrastructure",
+      "summary": "Research hypothesis: investigate the recurring work between a better model and a reliable robot.",
+      "bottleneck": "Field evidence → training data → verified improvement",
+      "companyIds": [
+        "skild-ai",
+        "foxglove",
+        "rerun",
+        "hugging-face",
+        "efference"
+      ],
+      "sourceIds": [
+        "af-manifesto",
+        "skild-s1",
+        "foxglove",
+        "rerun",
+        "lerobot"
+      ],
+      "questions": [
+        "Where is the most expensive human handoff?",
+        "What remains valuable as model capabilities improve?"
+      ]
+    },
+    {
+      "id": "thesis-physical",
+      "title": "The physical stack",
+      "summary": "Research hypothesis: study production quality, perception, and actuation as enabling constraints on physical automation.",
+      "bottleneck": "Manufacturing repeatability and field uptime",
+      "companyIds": [
+        "westmag",
+        "efference",
+        "bedrock-robotics"
+      ],
+      "sourceIds": [
+        "af-manifesto",
+        "westmag",
+        "efference-h1",
+        "bedrock-fleets"
+      ],
+      "questions": [
+        "What must be reliable before deployment can scale?",
+        "Who controls the hard-to-replicate production or qualification step?"
+      ]
+    },
+    {
+      "id": "thesis-infrastructure",
+      "title": "Power & compute",
+      "summary": "Research hypothesis: separate access, efficiency, fuel supply, and generation when mapping infrastructure scarcity.",
+      "bottleneck": "Capacity, power, and time to delivery",
+      "companyIds": [
+        "etched",
+        "modal",
+        "general-matter",
+        "helion"
+      ],
+      "sourceIds": [
+        "af-manifesto",
+        "etched",
+        "modal-clusters",
+        "gm-nrc",
+        "helion-orion"
+      ],
+      "questions": [
+        "Which constraint does this business relieve?",
+        "When does the proposed capacity become usable?"
+      ]
+    }
+  ]
+}
