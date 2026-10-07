@@ -192,6 +192,54 @@
       "publisher": "Hugging Face",
       "publishedAt": null,
       "checkedAt": "2026-10-07"
+    },
+    {
+      "id": "foxglove-funding-snapshot",
+      "title": "Robots are eating the world that software could not.",
+      "url": "https://foxglove.dev/blog/foxglove-series-b",
+      "publisher": "Foxglove",
+      "publishedAt": "2025-11-11",
+      "checkedAt": "2026-10-07"
+    },
+    {
+      "id": "rerun-funding-snapshot",
+      "title": "The Missing Data Infrastructure for Physical AI",
+      "url": "https://rerun.io/blog/physical-ai-data",
+      "publisher": "Rerun",
+      "publishedAt": null,
+      "checkedAt": "2026-10-07"
+    },
+    {
+      "id": "baseten-funding-snapshot",
+      "title": "Announcing our Series F",
+      "url": "https://www.baseten.co/blog/announcing-our-series-f/",
+      "publisher": "Baseten",
+      "publishedAt": "2026-06-22",
+      "checkedAt": "2026-10-07"
+    },
+    {
+      "id": "fireworks-ai-funding-snapshot",
+      "title": "Announcing our Series D and $1B ARR",
+      "url": "https://fireworks.ai/blog/series-d-announcement",
+      "publisher": "Fireworks AI",
+      "publishedAt": "2026-07-15",
+      "checkedAt": "2026-10-07"
+    },
+    {
+      "id": "radiant-funding-snapshot",
+      "title": "Radiant Raises Over $300 Million in New Funding",
+      "url": "https://www.radiantnuclear.com/news/series-d-announcement",
+      "publisher": "Radiant",
+      "publishedAt": "2025-12-17",
+      "checkedAt": "2026-10-07"
+    },
+    {
+      "id": "quaise-energy-funding-snapshot",
+      "title": "Quaise Energy Closes $180 Million Series B",
+      "url": "https://www.quaise.com/news/quaise-energy-closes-180-million-series-b-with-35-million-investment-by-nabors-industries",
+      "publisher": "Quaise Energy",
+      "publishedAt": "2026-08-27",
+      "checkedAt": "2026-10-07"
     }
   ],
   "companies": [
@@ -379,7 +427,8 @@
       "thesisFit": "Research angle: study the handoff from a robot failure to a reusable training example.",
       "sourceIds": [
         "foxglove",
-        "foxglove-mcap"
+        "foxglove-mcap",
+        "foxglove-funding-snapshot"
       ],
       "tags": [
         "Data infrastructure",
@@ -407,7 +456,8 @@
       "thesisFit": "Research angle: assess whether data access and transformation become a recurring infrastructure budget.",
       "sourceIds": [
         "rerun",
-        "rerun-github"
+        "rerun-github",
+        "rerun-funding-snapshot"
       ],
       "tags": [
         "Open source",
@@ -507,6 +557,106 @@
       "risks": [
         "Community activity is not a proxy for deployment success.",
         "An ecosystem reference is not necessarily an investable opportunity."
+      ]
+    },
+    {
+      "id": "baseten",
+      "name": "Baseten",
+      "domain": "baseten.co",
+      "sector": "Compute",
+      "stage": "Series F",
+      "relationship": "research",
+      "summary": "Builds infrastructure for deploying and optimizing AI inference and post-training.",
+      "bottleneck": "Production inference",
+      "thesisFit": "Research angle: test whether inference infrastructure captures durable value as AI workloads expand.",
+      "sourceIds": [
+        "baseten-funding-snapshot"
+      ],
+      "tags": [
+        "compute",
+        "Production inference"
+      ],
+      "questions": [
+        "What are gross margins and customer retention after GPU costs?"
+      ],
+      "risks": [
+        "Reported scale does not establish durable margins or customer retention.",
+        "Company announcements are self-reported and require further diligence."
+      ]
+    },
+    {
+      "id": "fireworks-ai",
+      "name": "Fireworks AI",
+      "domain": "fireworks.ai",
+      "sector": "Compute",
+      "stage": "Series D",
+      "relationship": "research",
+      "summary": "Provides infrastructure for specialized AI models and inference at scale.",
+      "bottleneck": "Specialized-model inference",
+      "thesisFit": "Research angle: test whether inference infrastructure captures durable value as AI workloads expand.",
+      "sourceIds": [
+        "fireworks-ai-funding-snapshot"
+      ],
+      "tags": [
+        "compute",
+        "Specialized-model inference"
+      ],
+      "questions": [
+        "How concentrated is revenue, and how much is contracted rather than usage-driven?"
+      ],
+      "risks": [
+        "Reported scale does not establish durable margins or customer retention.",
+        "Company announcements are self-reported and require further diligence."
+      ]
+    },
+    {
+      "id": "radiant",
+      "name": "Radiant",
+      "domain": "radiantnuclear.com",
+      "sector": "Energy",
+      "stage": "Funding round",
+      "relationship": "research",
+      "summary": "Develops transportable nuclear microreactors for resilient power.",
+      "bottleneck": "Transportable nuclear power",
+      "thesisFit": "Research angle: test whether new power infrastructure can relieve energy constraints on realistic deployment timelines.",
+      "sourceIds": [
+        "radiant-funding-snapshot"
+      ],
+      "tags": [
+        "energy",
+        "Transportable nuclear power"
+      ],
+      "questions": [
+        "Which licensing, fuel, and factory milestones determine first commercial delivery?"
+      ],
+      "risks": [
+        "Funding does not demonstrate commercial operation, licensing completion, or cost targets.",
+        "Company announcements are self-reported and require further diligence."
+      ]
+    },
+    {
+      "id": "quaise-energy",
+      "name": "Quaise Energy",
+      "domain": "quaise.com",
+      "sector": "Energy",
+      "stage": "Series B",
+      "relationship": "research",
+      "summary": "Develops millimeter-wave drilling and superhot geothermal power projects.",
+      "bottleneck": "Superhot geothermal",
+      "thesisFit": "Research angle: test whether new power infrastructure can relieve energy constraints on realistic deployment timelines.",
+      "sourceIds": [
+        "quaise-energy-funding-snapshot"
+      ],
+      "tags": [
+        "energy",
+        "Superhot geothermal"
+      ],
+      "questions": [
+        "What field evidence supports drilling cost and repeatable commercial well performance?"
+      ],
+      "risks": [
+        "Funding does not demonstrate commercial operation, licensing completion, or cost targets.",
+        "Company announcements are self-reported and require further diligence."
       ]
     }
   ],
@@ -643,6 +793,72 @@
       ],
       "observedAt": null,
       "kind": "Open source evidence"
+    },
+    {
+      "id": "foxglove-funding-observation",
+      "companyId": "foxglove",
+      "title": "Foxglove — Series B announcement",
+      "summary": "Foxglove announced a $40M Series B for its physical-AI data platform.",
+      "sourceIds": [
+        "foxglove-funding-snapshot"
+      ],
+      "observedAt": "2025-11-11",
+      "kind": "Funding announcement"
+    },
+    {
+      "id": "rerun-funding-observation",
+      "companyId": "rerun",
+      "title": "Rerun — Seed announcement",
+      "summary": "Rerun announced $17M in seed funding for its physical-AI data stack.",
+      "sourceIds": [
+        "rerun-funding-snapshot"
+      ],
+      "observedAt": null,
+      "kind": "Funding announcement"
+    },
+    {
+      "id": "baseten-funding-observation",
+      "companyId": "baseten",
+      "title": "Baseten — Series F announcement",
+      "summary": "Baseten reported a $1.5B Series F at a $13B valuation, alongside 20x revenue growth over the preceding year.",
+      "sourceIds": [
+        "baseten-funding-snapshot"
+      ],
+      "observedAt": "2026-06-22",
+      "kind": "Funding announcement"
+    },
+    {
+      "id": "fireworks-ai-funding-observation",
+      "companyId": "fireworks-ai",
+      "title": "Fireworks AI — Series D announcement",
+      "summary": "Fireworks announced a $1.505B Series D at a $17.5B valuation and reported annualized revenue run rate above $1B.",
+      "sourceIds": [
+        "fireworks-ai-funding-snapshot"
+      ],
+      "observedAt": "2026-07-15",
+      "kind": "Funding announcement"
+    },
+    {
+      "id": "radiant-funding-observation",
+      "companyId": "radiant",
+      "title": "Radiant — Funding round announcement",
+      "summary": "Radiant announced more than $300M to scale commercialization of portable nuclear microreactors.",
+      "sourceIds": [
+        "radiant-funding-snapshot"
+      ],
+      "observedAt": "2025-12-17",
+      "kind": "Funding announcement"
+    },
+    {
+      "id": "quaise-energy-funding-observation",
+      "companyId": "quaise-energy",
+      "title": "Quaise Energy — Series B announcement",
+      "summary": "Quaise announced the $180M final close of its Series B, including $35M from Nabors, to advance superhot geothermal development.",
+      "sourceIds": [
+        "quaise-energy-funding-snapshot"
+      ],
+      "observedAt": "2026-08-27",
+      "kind": "Funding announcement"
     }
   ],
   "briefs": [
@@ -926,6 +1142,80 @@
         "Which constraint does this business relieve?",
         "When does the proposed capacity become usable?"
       ]
+    }
+  ],
+  "marketMetrics": [
+    {
+      "companyId": "foxglove",
+      "theme": "Robotics",
+      "amountM": 40,
+      "lowerBound": false,
+      "round": "Series B",
+      "sourceIds": [
+        "foxglove-funding-snapshot"
+      ],
+      "focus": "Robot data infrastructure",
+      "nextQuestion": "Which paid workflows remain essential as robot fleets scale?"
+    },
+    {
+      "companyId": "rerun",
+      "theme": "Robotics",
+      "amountM": 17,
+      "lowerBound": false,
+      "round": "Seed",
+      "sourceIds": [
+        "rerun-funding-snapshot"
+      ],
+      "focus": "Multimodal data infrastructure",
+      "nextQuestion": "How does open-source adoption convert into recurring paid data workloads?"
+    },
+    {
+      "companyId": "baseten",
+      "theme": "Compute",
+      "amountM": 1500,
+      "lowerBound": false,
+      "round": "Series F",
+      "sourceIds": [
+        "baseten-funding-snapshot"
+      ],
+      "focus": "Production inference",
+      "nextQuestion": "What are gross margins and customer retention after GPU costs?"
+    },
+    {
+      "companyId": "fireworks-ai",
+      "theme": "Compute",
+      "amountM": 1505,
+      "lowerBound": false,
+      "round": "Series D",
+      "sourceIds": [
+        "fireworks-ai-funding-snapshot"
+      ],
+      "focus": "Specialized-model inference",
+      "nextQuestion": "How concentrated is revenue, and how much is contracted rather than usage-driven?"
+    },
+    {
+      "companyId": "radiant",
+      "theme": "Energy",
+      "amountM": 300,
+      "lowerBound": true,
+      "round": "Funding round",
+      "sourceIds": [
+        "radiant-funding-snapshot"
+      ],
+      "focus": "Transportable nuclear power",
+      "nextQuestion": "Which licensing, fuel, and factory milestones determine first commercial delivery?"
+    },
+    {
+      "companyId": "quaise-energy",
+      "theme": "Energy",
+      "amountM": 180,
+      "lowerBound": false,
+      "round": "Series B",
+      "sourceIds": [
+        "quaise-energy-funding-snapshot"
+      ],
+      "focus": "Superhot geothermal",
+      "nextQuestion": "What field evidence supports drilling cost and repeatable commercial well performance?"
     }
   ]
 }

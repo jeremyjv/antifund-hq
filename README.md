@@ -35,23 +35,19 @@ Five lightweight work areas map directly to the role. They pair usable public re
 | --- | --- | --- |
 | **Sourcing** | Inspect public technical sources, review research candidates, save a shortlist, and draft a collection plan | GitHub, papers, hiring, launches, traffic, and social ingestion |
 | **Agents** | Select a company and preview sourcing, research, and diligence outputs; edit and save a template | Deployed agents, scheduling, run traces, and evaluations |
-| **Portfolio stats** | Explore a reporting layout using public portfolio names and prepare a metrics collection checklist | Company metrics, fund records, approved marks, and market comps |
+| **Market stats** | Explore six real sourcing candidates, disclosed funding rounds, thesis areas, and diligence questions | Company metrics, fund records, approved marks, and market comps |
 | **Diligence & relationships** | Prepare company-specific founder questions and technical review notes | Contacts, meeting history, introductions, and live deal context |
 | **Operations** | Preview weekly review, memo review, and quarterly reporting checklists; review your actual open saved work | Team assignments, approvals, schedules, and reporting integrations |
 
-Agent outputs are deterministic previews, not model executions. Financial placeholders mean **unknown**, never zero. No founder meeting, firm task, automation schedule, or integration is represented as active. Templates become real private records only when a visitor edits and saves them; they use the same D1 validation, versioning, and recovery flows as existing notes.
+Agent outputs are deterministic previews, not model executions. The market dashboard uses **real, source-linked company announcements** for Foxglove, Rerun, Baseten, Fireworks AI, Radiant, and Quaise Energy. None appears on the published investment list checked October 7, 2026; undisclosed positions cannot be ruled out. These are research candidates, not holdings or active deals. Funding amounts are dated company claims, not fund performance. No founder meeting, firm task, automation schedule, or integration is represented as active. Templates become real private records only when a visitor edits and saves them; they use the same D1 validation, versioning, and recovery flows as existing notes.
 
 ## What the dashboard measures
 
-The seeded snapshot was checked **October 7, 2026** and includes **11 companies, 24 primary-source references, 12 observations, three research briefs, and three thesis maps**.
+The seeded snapshot was checked **October 7, 2026** and includes **15 companies, 30 primary-source references, 18 observations, three research briefs, and three thesis maps**.
 
-The initial dashboard shows:
+The homepage defaults to dated **research-candidate** developments, excluding known portfolio companies from the sourcing feed. It also shows six candidates across robotics, compute, and energy with source-linked funding disclosures. A funding chart compares individual announced rounds at different stages and dates; it is not a valuation ranking or total funding chart.
 
-- **3 dated updates** in the 30-day window ending on the snapshot date.
-- **2 distinct public portfolio companies** represented in those updates.
-- **8 observations without exact publication dates**, presented separately as context.
-
-These counts describe the curated research sample. They are not Anti Fund’s complete portfolio, live deal pipeline, or investment performance. The 30-day filter is anchored to the snapshot’s checked date; refreshing the page does not fetch new announcements. Publication dates and source-check dates remain separate, and unknown dates are never inferred.
+The original portfolio examples remain in the research library for context. The public snapshot is not a live feed. Publication dates and source-check dates remain separate; unknown dates stay unknown. No private revenue, runway, ownership, or fund marks are fabricated.
 
 Public portfolio membership is attributed to Anti Fund’s published investments. Research candidates imply no relationship or investment intent. Sources establish what a company reported; they do not independently validate its technology or commercial performance.
 

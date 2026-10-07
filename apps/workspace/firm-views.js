@@ -1,3 +1,4 @@
+import { renderMarketOverview } from './market-overview.js';
 import {agentWorkflows, operationWorkflows, selectedFirmCompany} from '../../packages/core/firm-workflows.js';
 
 export function renderFirmPage(view, ui) {
@@ -30,13 +31,9 @@ export function renderFirmPage(view, ui) {
     <section class="firm-wide-panel"><div><h2>Make reliability visible</h2><p>Every future run should retain its sources, missing evidence, reviewer, cost, and outcome.</p></div><div class="firm-review-tags"><span>Source support</span><span>Coverage gaps</span><span>Human review</span></div></section>
     <div class="firm-section-title"><h2>Context the team can use today</h2></div><p class="firm-small-copy">The read-only research connector is available now. Live execution, scheduling, and run-level evaluation would be the next integration step.</p><a class="text-link" href="#about">Inspect sources & agent access ${icon('arrow')}</a>`;
   if(view==='stats') {
-    const portfolio=r.companies.filter(c=>c.relationship==='portfolio');
-    return `${heading('Portfolio stats','One place to trust the numbers.','A shared view of company metrics, valuation marks, fund records, and comparable companies.',preview('metrics-request','Preview metrics request'))}
-      ${banner('Layout preview using public portfolio names. Private financial data is not connected; dashes mean unknown, never zero.')}
-      <div class="firm-card-grid"><article class="firm-card compact"><h3>Company metrics</h3>${status('Awaiting company updates')}<p>Revenue, cash, runway, and operating KPIs with reporting dates and sources.</p></article><article class="firm-card compact"><h3>Fund data & marks</h3>${status('Awaiting fund records')}<p>Cost basis, ownership, approved marks, NAV, and distributions.</p></article><article class="firm-card compact"><h3>Market comps</h3>${status('Awaiting comparable data')}<p>Peer metrics, valuation dates, and adjustments behind each comparison.</p></article></div>
-      <div class="firm-section-title"><h2>Portfolio reporting view</h2><span>Public membership · ${portfolio.length} companies in this sample</span></div>
-      <div class="firm-table-wrap"><table class="firm-table"><thead><tr><th>Company</th><th>Revenue</th><th>Runway</th><th>Valuation / mark</th><th>As of</th><th>Review status</th></tr></thead><tbody>${portfolio.map(c=>`<tr><td><button class="company-name" data-action="open-company" data-id="${esc(c.id)}">${esc(c.name)}</button></td><td aria-label="Revenue not provided">—</td><td aria-label="Runway not provided">—</td><td aria-label="Valuation and mark not provided">—</td><td>—</td><td><span class="firm-missing">Data needed</span></td></tr>`).join('')}</tbody></table></div>
-      <section class="firm-wide-panel"><div><h2>Every number needs a source and an owner.</h2><p>Collect the metric definition, period, currency, source document, and reviewer before using it in a decision.</p></div>${draft('metrics-request','Draft collection checklist')}</section>`;
+    return `${heading('Market stats','Find the next conversation.','Real startups aligned with robotics, compute, and energy—with public evidence to investigate.',preview('metrics-request','Preview metrics request'))}
+      ${renderMarketOverview(r,ui)}
+      <section class="firm-wide-panel"><div><h2>Bring your real numbers into the picture.</h2><p>Private company reporting would add revenue, runway, and reviewed valuations. Start with a collection checklist for future diligence.</p></div>${draft('metrics-request','Draft collection checklist')}</section>`;
   }
   if(view==='diligence') return `${heading('Diligence & relationships','Make the next founder meeting count.','Use technical evidence to prepare better questions, then capture what the conversation changes.')}
     ${banner('Public evidence is available. Contacts, meeting history, and live deals are not connected.')}

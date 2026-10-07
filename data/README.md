@@ -1,6 +1,6 @@
 # Public research seed
 
-`research-seed.json` makes the first visit useful without pretending to possess the firm's private records. It contains 11 real organizations, 24 primary-source references, 12 observations, 3 research briefs, and 3 thesis maps. Sources were checked on **October 7, 2026**.
+`research-seed.json` makes the first visit useful without pretending to possess the firm's private records. It contains 15 real organizations, 30 primary-source references, 18 observations, 3 research briefs, and 3 thesis maps. Sources were checked on **October 7, 2026**.
 
 ## What the labels mean
 
@@ -37,3 +37,9 @@ Measure source coverage, duplicate rate, broken references, claim support, and t
 Source IDs and record IDs are stable. Relationships among records are explicit via `sourceIds` and `companyIds`. Company stages remain null because an old investment round is not a verified current fundraising stage. All links are public; the seed contains no Jeremy HQ private data, confidential fund information, or invented financial records.
 
 To extend this dataset, preserve the distinction between evidence and analysis and run the repository's seed validation before importing it into D1.
+
+## Sourcing candidate metrics
+
+The six-company market snapshot covers Foxglove, Rerun, Baseten, Fireworks AI, Radiant, and Quaise Energy. Funding amounts come from company announcements linked in the public catalog. Dates describe those announcements, not live fundraising. Radiant's figure retains its “more than” qualifier; Rerun's article has no exact publication date, so the date remains unknown.
+
+`portfolio-exclusions.json` records the expanded published investment list checked at https://antifund.com/#portfolio on October 7, 2026. The candidates are absent from that list; this does not rule out undisclosed investments. The validator rejects metrics tied to known holdings, and a regression check compares candidate names against the exclusion list. All private financial metrics remain unknown. Public company claims, our thesis interpretation, and diligence questions are kept distinct.

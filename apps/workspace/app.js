@@ -1,3 +1,4 @@
+import { renderMarketOverview } from './market-overview.js';
 import { renderFirmPage } from "./firm-views.js";
 import { firmWorkflowDraft } from "../../packages/core/firm-workflows.js";
 const views = ["overview", "sourcing", "agents", "stats", "diligence", "operations", "companies", "research", "workspace", "about"];
@@ -58,7 +59,7 @@ const state = {
   workspaceError: null,
   view: "overview",
   firmCompany: null,
-  dashboardFilter: "recent",
+  dashboardFilter: "dated",
   filter: "all",
   sector: "all",
   query: "",
@@ -171,7 +172,7 @@ function shell() {
     overview: "Dashboard",
     sourcing: "Sourcing",
     agents: "Agents",
-    stats: "Portfolio stats",
+    stats: "Market stats",
     diligence: "Diligence & relationships",
     operations: "Operations",
     companies: "Companies",
@@ -180,7 +181,7 @@ function shell() {
     about: "Sources & agent access",
   };
   document.title = `Anti Fund HQ — ${labels[state.view]}`;
-  app.innerHTML = `<aside class="sidebar" aria-label="Primary navigation"><button class="icon-button mobile-menu" data-action="close-menu" aria-label="Close navigation">${icon("close")}</button><a class="brand" href="#overview" aria-label="Anti Fund HQ overview"><img class="brand-logo" src="/assets/antifund-logo.png" alt=""><div><div class="brand-name">Anti Fund</div><div class="brand-sub">RESEARCH HQ</div></div></a><div class="nav-label">Firm workspace</div><nav aria-label="Firm workspace">${navItem("overview", "Dashboard", "grid")}${navItem("sourcing", "Sourcing", "search")}${navItem("agents", "Agents", "spark")}${navItem("stats", "Portfolio stats", "companies")}${navItem("diligence", "Diligence & relationships", "connect")}${navItem("operations", "Operations", "clock")}</nav><div class="nav-label">Research library</div><nav aria-label="Research library">${navItem("companies", "Companies", "companies", state.research?.companies.length ?? "")}${navItem("research", "Research briefs", "research")}</nav><div class="sidebar-bottom">${navItem("workspace", "Saved work", "folder", state.workspace.length || "")}${navItem("about", "Sources & agent access", "connect")}<div class="sidebar-note"><strong>Prepared for Anti Fund.</strong><br>Research demo by Jeremy.<br>Built from public sources.</div></div></aside><div class="app-main"><header class="topbar"><button class="icon-button mobile-menu" data-action="open-menu" aria-label="Open navigation">${icon("menu")}</button><div class="breadcrumb"><span>Anti Fund HQ</span><span>/</span><span>${labels[state.view]}</span></div><div class="topbar-actions"><span class="prototype"><span class="dot"></span> Independent prototype</span>${external(github, "View repository")}</div></header><main class="content" id="main" tabindex="-1">${page()}</main></div>`;
+  app.innerHTML = `<aside class="sidebar" aria-label="Primary navigation"><button class="icon-button mobile-menu" data-action="close-menu" aria-label="Close navigation">${icon("close")}</button><a class="brand" href="#overview" aria-label="Anti Fund HQ overview"><img class="brand-logo" src="/assets/antifund-logo.png" alt=""><div><div class="brand-name">Anti Fund</div><div class="brand-sub">RESEARCH HQ</div></div></a><div class="nav-label">Firm workspace</div><nav aria-label="Firm workspace">${navItem("overview", "Dashboard", "grid")}${navItem("sourcing", "Sourcing", "search")}${navItem("agents", "Agents", "spark")}${navItem("stats", "Market stats", "companies")}${navItem("diligence", "Diligence & relationships", "connect")}${navItem("operations", "Operations", "clock")}</nav><div class="nav-label">Research library</div><nav aria-label="Research library">${navItem("companies", "Companies", "companies", state.research?.companies.length ?? "")}${navItem("research", "Research briefs", "research")}</nav><div class="sidebar-bottom">${navItem("workspace", "Saved work", "folder", state.workspace.length || "")}${navItem("about", "Sources & agent access", "connect")}<div class="sidebar-note"><strong>Prepared for Anti Fund.</strong><br>Research demo by Jeremy.<br>Built from public sources.</div></div></aside><div class="app-main"><header class="topbar"><button class="icon-button mobile-menu" data-action="open-menu" aria-label="Open navigation">${icon("menu")}</button><div class="breadcrumb"><span>Anti Fund HQ</span><span>/</span><span>${labels[state.view]}</span></div><div class="topbar-actions"><span class="prototype"><span class="dot"></span> Independent prototype</span>${external(github, "View repository")}</div></header><main class="content" id="main" tabindex="-1">${page()}</main></div>`;
 }
 function page() {
   if (state.loading)
@@ -202,16 +203,18 @@ function page() {
 }
 function overview() {
   const r = state.research;
-  const d = dashboardSnapshot(r);
+  const candidateIds = new Set(r.companies.filter(c=>c.relationship === "research").map(c=>c.id));
+  const d = dashboardSnapshot({...r,signals:r.signals.filter(s=>candidateIds.has(s.companyId))});
   const filters = [["recent", "Past 30 days", d.recent.length], ["dated", "All dated updates", d.dated.length], ["undated", "Undated evidence", d.undated.length]];
   const rows = d[state.dashboardFilter] || d.recent;
-  return `<div class="decision-dashboard">${heading("Anti Fund / Decision dashboard", "What changed. What matters.", "Company developments, investment questions, and the evidence to follow up.")}
+  return `<div class="decision-dashboard">${heading("Anti Fund / Decision dashboard", "What changed. What matters.", "Sourcing candidates beyond the published portfolio, with evidence and questions to follow up.")}
   <div class="snapshot-status"><span>${icon("clock")} Snapshot checked ${esc(date(r.checkedAt))}</span><span>Curated public research · Not a live feed</span></div>
   <section class="decision-metrics" aria-label="Research snapshot summary">
     <button data-action="dashboard-filter" data-id="recent"><strong>${d.recent.length}</strong><span>Dated updates in 30 days<small>Window ending ${esc(date(r.checkedAt))}</small></span>${icon("arrow")}</button>
-    <div><strong>${d.portfolioCount}</strong><span>Portfolio companies with updates<small>Within this research sample</small></span></div>
+    <div><strong>${new Set(d.dated.map(s=>s.companyId)).size}</strong><span>Research candidates with dated updates<small>Existing holdings excluded from this feed</small></span></div>
     <button data-action="dashboard-filter" data-id="undated"><strong>${d.undated.length}</strong><span>Observations without source dates<small>Review as context, not recent news</small></span>${icon("arrow")}</button>
   </section>
+  ${renderMarketOverview(r, {esc,external,date,btn}, true)}
   <section class="decision-feed" aria-labelledby="changes-title"><div class="decision-section-heading"><div><h2 id="changes-title">Developments to investigate</h2><p>Company-reported evidence. Relevance and next steps are research judgment.</p></div><div class="decision-filters" role="group" aria-label="Update timeframe">${filters.map(([id,label,count])=>`<button data-action="dashboard-filter" data-id="${id}" aria-pressed="${state.dashboardFilter === id}">${label} <span>${count}</span></button>`).join("")}</div></div>
   <div class="decision-table-head" aria-hidden="true"><span>Company / source date</span><span>What changed & why it matters</span><span>What to check next</span></div>
   <div class="decision-rows">${rows.length ? rows.map(decisionRow).join("") : '<div class="empty-state"><h3>No dated updates in this window.</h3><p>Review all dated updates or undated evidence above.</p></div>'}</div></section>

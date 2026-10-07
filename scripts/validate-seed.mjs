@@ -12,7 +12,7 @@ const companySchema=z.object({id,name:text,domain:text,sector:text,stage:text.nu
 const signalSchema=z.object({id,companyId:id,title:text,summary:text,sourceIds:refs,observedAt:date.nullable(),kind:text});
 const briefSchema=z.object({id,title:text,subtitle:text,bottleneck:text,summary:text,companyIds:refs,sourceIds:refs,sections:z.array(z.object({title:text,body:text,sourceIds:refs})).min(1),questions:z.array(text).min(1),counterpoints:z.array(text).min(1)});
 const thesisSchema=z.object({id,title:text,summary:text,bottleneck:text,companyIds:refs,sourceIds:refs,questions:z.array(text).min(1)});
-export const seedSchema=z.object({checkedAt:date,sources:z.array(sourceSchema).min(1),companies:z.array(companySchema).min(1),signals:z.array(signalSchema),briefs:z.array(briefSchema).min(1),theses:z.array(thesisSchema).min(1)});
+export const seedSchema=z.object({checkedAt:date,sources:z.array(sourceSchema).min(1),companies:z.array(companySchema).min(1),signals:z.array(signalSchema),briefs:z.array(briefSchema).min(1),theses:z.array(thesisSchema).min(1),marketMetrics:z.array(z.object({companyId:id,theme:text,amountM:z.number().positive(),lowerBound:z.boolean(),round:text,sourceIds:refs,focus:text,nextQuestion:text})).optional()});
 
 export function validateSeed(input){
   const data=seedSchema.parse(input);
@@ -27,6 +27,10 @@ export function validateSeed(input){
     if(record.companyId)assertRefs([record.companyId],companies,record.id);
     if(record.companyIds)assertRefs(record.companyIds,companies,record.id);
     for(const section of record.sections||[])assertRefs(section.sourceIds,sources,record.id);
+  }
+  for(const metric of data.marketMetrics||[]){
+    assertRefs(metric.sourceIds,sources,metric.companyId);
+    if(!data.companies.some(c=>c.id===metric.companyId && c.relationship==='research'))throw new Error('Market candidate must be research: '+metric.companyId);
   }
   for(const company of data.companies.filter(c=>c.relationship==='portfolio')){
     if(!company.sourceIds.some(s=>new URL(data.sources.find(source=>source.id===s).url).hostname==='antifund.com'))throw new Error(`${company.id}: portfolio membership needs Anti Fund attribution`);

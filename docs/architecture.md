@@ -33,7 +33,7 @@ There are no separate model memories, vector databases, or agent-specific copies
 - Public read access removes first-visit setup. Private collaboration needs a future organization identity layer, roles and deal-level permissions.
 - Manual source curation makes the initial analysis auditable. Automated adapters must maintain provenance, deduplication and review before replacing this workflow.
 - Lexical retrieval is sufficient to demonstrate a small catalog. Vector ranking should be added only with a larger corpus and measured retrieval benefit.
-- Financial reporting is excluded because private fund inputs are unavailable. No fictional marks or performance charts fill the gap.
+- Private fund reporting remains unconnected. `marketMetrics` in the validated D1 catalog stores disclosed funding rounds with source references and company IDs. The market overview selects research candidates only, and related observations are available to the shared context tools.
 - Visitors can evaluate real persistence without accounts, but cookie access is temporary and cannot be recovered. Export and clear disclosure are part of the interface.
 
 ## Extension points
