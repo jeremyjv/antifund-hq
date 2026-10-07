@@ -4,11 +4,11 @@
 
 An independent application prototype by Jeremy: explore a source-grounded company universe, examine original research hypotheses, and turn evidence into a private shortlist and diligence notes.
 
-[Open the dashboard](https://antifund-hq.jjvillan03.workers.dev) · [Research methodology](data/README.md) · [Architecture](docs/architecture.md) · [MVP scope](docs/scope.md)
+[Open the dashboard](https://antifundhq.com) · [Research methodology](data/README.md) · [Architecture](docs/architecture.md) · [MVP scope](docs/scope.md)
 
 ## Try it in two minutes
 
-1. Open **Start here** and read **The next robotics bottleneck may be the data loop**.
+1. Open **Dashboard** to see dated developments, research relevance, and the next question to investigate. Filter the 30-day snapshot, all dated updates, or undated evidence; choose **Investigate** to draft a source-linked note.
 2. Follow a company into its evidence, risks, and unanswered questions. Public Anti Fund investments and independent research examples are labeled separately.
 3. Save a company to your shortlist, assemble an editable brief, and add your judgment.
 4. Reload. Your edits are stored in Cloudflare D1. Explore history, archive a record, and restore it from Trash.
@@ -62,7 +62,7 @@ docs/                Architecture, limitations, operations and verification
 The public Streamable HTTP MCP endpoint is:
 
 ```text
-https://antifund-hq.jjvillan03.workers.dev/mcp
+https://antifundhq.com/mcp
 ```
 
 It exposes `search_research` and `get_company_context`. No authentication is required for the public catalog. It cannot access visitor notes, change records, send messages, or retrieve provider credentials. See [the context contract](docs/context-contract.md) for retrieval behavior and a protocol example.

@@ -5,6 +5,10 @@
   "compatibility_date": "2026-10-01",
   "compatibility_flags": ["nodejs_compat"],
   "workers_dev": true,
+  "routes": [
+    {"pattern": "antifundhq.com", "custom_domain": true},
+    {"pattern": "www.antifundhq.com", "custom_domain": true}
+  ],
   "preview_urls": false,
   "assets": {
     "directory": "./dist",

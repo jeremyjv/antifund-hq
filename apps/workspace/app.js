@@ -1,3 +1,4 @@
+import { dashboardSnapshot } from "../../packages/core/dashboard.js";
 const $ = (selector, root = document) => root.querySelector(selector);
 const esc = (value = "") =>
   String(value ?? "").replace(
@@ -53,6 +54,7 @@ const state = {
   csrf: null,
   workspaceError: null,
   view: "overview",
+  dashboardFilter: "recent",
   filter: "all",
   sector: "all",
   query: "",
@@ -162,14 +164,14 @@ function navItem(id, label, iconName, count = "") {
 }
 function shell() {
   const labels = {
-    overview: "Start here",
+    overview: "Dashboard",
     companies: "Companies",
     research: "Research briefs",
     workspace: "Saved work",
     about: "Sources & agent access",
   };
   document.title = `Anti Fund HQ — ${labels[state.view]}`;
-  app.innerHTML = `<aside class="sidebar" aria-label="Primary navigation"><button class="icon-button mobile-menu" data-action="close-menu" aria-label="Close navigation">${icon("close")}</button><a class="brand" href="#overview" aria-label="Anti Fund HQ overview"><img class="brand-logo" src="/assets/antifund-logo.png" alt=""><div><div class="brand-name">Anti Fund</div><div class="brand-sub">RESEARCH HQ</div></div></a><div class="nav-label">Workspace</div><nav>${navItem("overview", "Start here", "grid")}${navItem("companies", "Companies", "companies", state.research?.companies.length ?? "")}${navItem("research", "Research briefs", "research")}</nav><div class="sidebar-bottom">${navItem("workspace", "Saved work", "folder", state.workspace.length || "")}${navItem("about", "Sources & agent access", "connect")}<div class="sidebar-note"><strong>Prepared for Anti Fund.</strong><br>Research demo by Jeremy.<br>Built from public sources.</div></div></aside><div class="app-main"><header class="topbar"><button class="icon-button mobile-menu" data-action="open-menu" aria-label="Open navigation">${icon("menu")}</button><div class="breadcrumb"><span>Anti Fund HQ</span><span>/</span><span>${labels[state.view]}</span></div><div class="topbar-actions"><span class="prototype"><span class="dot"></span> Independent prototype</span>${external(github, "View repository")}</div></header><main class="content" id="main" tabindex="-1">${page()}</main></div>`;
+  app.innerHTML = `<aside class="sidebar" aria-label="Primary navigation"><button class="icon-button mobile-menu" data-action="close-menu" aria-label="Close navigation">${icon("close")}</button><a class="brand" href="#overview" aria-label="Anti Fund HQ overview"><img class="brand-logo" src="/assets/antifund-logo.png" alt=""><div><div class="brand-name">Anti Fund</div><div class="brand-sub">RESEARCH HQ</div></div></a><div class="nav-label">Workspace</div><nav>${navItem("overview", "Dashboard", "grid")}${navItem("companies", "Companies", "companies", state.research?.companies.length ?? "")}${navItem("research", "Research briefs", "research")}</nav><div class="sidebar-bottom">${navItem("workspace", "Saved work", "folder", state.workspace.length || "")}${navItem("about", "Sources & agent access", "connect")}<div class="sidebar-note"><strong>Prepared for Anti Fund.</strong><br>Research demo by Jeremy.<br>Built from public sources.</div></div></aside><div class="app-main"><header class="topbar"><button class="icon-button mobile-menu" data-action="open-menu" aria-label="Open navigation">${icon("menu")}</button><div class="breadcrumb"><span>Anti Fund HQ</span><span>/</span><span>${labels[state.view]}</span></div><div class="topbar-actions"><span class="prototype"><span class="dot"></span> Independent prototype</span>${external(github, "View repository")}</div></header><main class="content" id="main" tabindex="-1">${page()}</main></div>`;
 }
 function page() {
   if (state.loading)
@@ -190,20 +192,28 @@ function page() {
 }
 function overview() {
   const r = state.research;
-  const featured = r.briefs[0];
-  const signals = [...r.signals].filter(s => s.observedAt).sort((a,b) => b.observedAt.localeCompare(a.observedAt)).slice(0,3);
-  return `${heading("Anti Fund / Research demo", "What deserves a closer look?", "Explore a research idea, check the evidence, and prepare your next founder conversation.")}
-  <section class="start-feature" aria-labelledby="start-title">
-    <div class="start-story"><span class="eyebrow">Start here · A 2-minute research brief</span>
-    <h2 id="start-title">A robot fails in the field.<br>Who helps it learn from that?</h2>
-    <p>Foxglove and Rerun build tools for working with robot data. As robot models improve, could the tools around them become more valuable?</p>
-    <div class="start-reason"><strong>Why this fits Anti Fund</strong><p>Your manifesto points to robotics and the infrastructure it needs. This brief investigates one part of that opportunity: turning real-world failures into better robot performance.</p></div>
-    ${btn("open-brief", `Read the brief ${icon("arrow")}`, "primary", `data-id="${esc(featured.id)}"`)}
-    <span class="start-proof">${featured.sourceIds.length} linked sources · Research hypothesis</span></div>
-    <aside class="start-guide"><h3>What you’ll get</h3><ol><li><strong>The evidence</strong><span>What the companies actually publish.</span></li><li><strong>The open question</strong><span>Where a useful product could become a lasting business.</span></li><li><strong>The next conversation</strong><span>Questions to test with a founder.</span></li></ol><p>Public research prepared for this demo. Company claims and our interpretation are kept separate.</p></aside>
+  const d = dashboardSnapshot(r);
+  const filters = [["recent", "Past 30 days", d.recent.length], ["dated", "All dated updates", d.dated.length], ["undated", "Undated evidence", d.undated.length]];
+  const rows = d[state.dashboardFilter] || d.recent;
+  return `<div class="decision-dashboard">${heading("Anti Fund / Decision dashboard", "What changed. What matters.", "Company developments, investment questions, and the evidence to follow up.")}
+  <div class="snapshot-status"><span>${icon("clock")} Snapshot checked ${esc(date(r.checkedAt))}</span><span>Curated public research · Not a live feed</span></div>
+  <section class="decision-metrics" aria-label="Research snapshot summary">
+    <button data-action="dashboard-filter" data-id="recent"><strong>${d.recent.length}</strong><span>Dated updates in 30 days<small>Window ending ${esc(date(r.checkedAt))}</small></span>${icon("arrow")}</button>
+    <div><strong>${d.portfolioCount}</strong><span>Portfolio companies with updates<small>Within this research sample</small></span></div>
+    <button data-action="dashboard-filter" data-id="undated"><strong>${d.undated.length}</strong><span>Observations without source dates<small>Review as context, not recent news</small></span>${icon("arrow")}</button>
   </section>
-  <section class="next-paths" aria-label="Explore the workspace"><a href="#companies"><span>Explore the companies</span><p>${r.companies.length} profiles with sources, risks, and questions.</p>${icon("arrow")}</a><a href="#research"><span>Read the other briefs</span><p>Robot hardware, compute, and energy.</p>${icon("arrow")}</a><a href="#about"><span>Bring this context to an agent</span><p>Inspect the sources and use the read-only connector.</p>${icon("arrow")}</a></section>
-  <details class="secondary-detail"><summary>Recent public updates <span>${signals.length} examples · Checked ${esc(date(r.checkedAt))}</span></summary><div class="signal-list">${signals.map(signalCard).join("")}</div></details>`;
+  <section class="decision-feed" aria-labelledby="changes-title"><div class="decision-section-heading"><div><h2 id="changes-title">Developments to investigate</h2><p>Company-reported evidence. Relevance and next steps are research judgment.</p></div><div class="decision-filters" role="group" aria-label="Update timeframe">${filters.map(([id,label,count])=>`<button data-action="dashboard-filter" data-id="${id}" aria-pressed="${state.dashboardFilter === id}">${label} <span>${count}</span></button>`).join("")}</div></div>
+  <div class="decision-table-head" aria-hidden="true"><span>Company / source date</span><span>What changed & why it matters</span><span>What to check next</span></div>
+  <div class="decision-rows">${rows.length ? rows.map(decisionRow).join("") : '<div class="empty-state"><h3>No dated updates in this window.</h3><p>Review all dated updates or undated evidence above.</p></div>'}</div></section>
+  <section class="dashboard-briefs" aria-labelledby="thesis-title"><div class="decision-section-heading"><div><h2 id="thesis-title">The bigger investment questions</h2><p>Connect individual developments to a research thesis.</p></div><a class="text-link" href="#research">All research ${icon("arrow")}</a></div><div class="dashboard-brief-grid">${r.briefs.map(b=>`<button data-action="open-brief" data-id="${esc(b.id)}"><span class="small-label">Research hypothesis · ${b.sourceIds.length} sources</span><h3>${esc(b.title)}</h3><span class="text-link">Read brief ${icon("arrow")}</span></button>`).join("")}</div></section>
+  <p class="dashboard-boundary">Coverage: ${r.companies.length} companies in this public research sample. Private revenue, valuations, fund marks, and investment decisions are not connected.</p></div>`;
+}
+function decisionRow(s) {
+  const c = company(s.companyId);
+  const sources = sourceList(s.sourceIds);
+  return `<article class="decision-row"><div class="decision-company"><div class="company-name-cell">${mark(c)}<button class="company-name" data-action="open-company" data-id="${esc(c.id)}">${esc(c.name)}</button></div>${relationship(c)}<span class="decision-date">${esc(s.observedAt ? date(s.observedAt) : "Publication date unavailable")}</span><span class="small-label">${esc(s.kind)}</span></div>
+  <div class="decision-change"><h3>${esc(s.title)}</h3><p>${esc(s.summary)}</p><p class="decision-relevance"><strong>Why it matters</strong> ${esc(c.thesisFit.replace(/^Research angle: /,""))}</p><div class="decision-sources">${sources.map(src=>external(src.url,src.publisher || "Source")).join(" ")}<span>Checked ${esc(date(sources[0]?.checkedAt))}</span></div></div>
+  <div class="decision-next"><span class="small-label">Question to resolve</span><p>${esc(c.questions[0])}</p>${btn("investigate-signal", `Investigate ${icon("arrow")}`, "", `data-id="${esc(s.id)}" aria-label="Investigate ${esc(c.name)}"`)}<span class="decision-draft-hint">Opens an editable research note</span></div></article>`;
 }
 function signalCard(s) {
   const c = company(s.companyId);
@@ -684,6 +694,21 @@ document.addEventListener("click", async (event) => {
         $("#discard-prompt", dialog)?.remove();
         $("#record-title", dialog)?.focus();
         break;
+      case "dashboard-filter":
+        state.dashboardFilter = ["recent", "dated", "undated"].includes(id) ? id : "recent";
+        shell();
+        $(`.decision-filters [data-id="${state.dashboardFilter}"]`)?.focus({preventScroll:true});
+        break;
+      case "investigate-signal": {
+        const s = state.research.signals.find(s => s.id === id);
+        const c = company(s.companyId);
+        noteEditor(null, c.id, {
+          type: "note", companyId: c.id, status: "open",
+          title: `Investigate ${c.name}: ${s.title}`,
+          body: `Public observation (${s.observedAt || "publication date unavailable"})\n${s.summary}\n\nResearch interpretation\n${c.thesisFit}\n\nQuestions to resolve\n${c.questions.map(q => `- ${q}`).join("\n")}\n\nEvidence\n${sourceList(s.sourceIds).map(src => `${src.title}: ${src.url} (checked ${src.checkedAt})`).join("\n")}\n\nMy findings and next step\n`,
+        });
+        break;
+      }
       case "filter":
         state.filter = id;
         shell();
