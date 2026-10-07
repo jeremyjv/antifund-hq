@@ -1816,3 +1816,70 @@ dialog::backdrop {
 .opportunity-card>header { gap:10px; }
 .opportunity-icon { flex-shrink:0; width:30px; height:30px; }
 .opportunity-icon svg { width:17px; height:17px; }
+
+/* Firm work areas use real public examples and explicitly labeled workflow previews. */
+.sidebar { overflow-y:auto; }
+.sidebar>.brand,.sidebar>nav,.sidebar>.nav-label,.sidebar>.sidebar-bottom { flex-shrink:0; }
+.sidebar .brand { padding-bottom:14px; }
+.sidebar .nav-label { padding-top:12px; }
+.sidebar .nav-item { font-size:13px; padding:9px 11px; gap:9px; line-height:1.4; }
+.sidebar .sidebar-note { margin-top:12px; padding-top:12px; }
+.sidebar .sidebar-bottom { padding-top:18px; }
+.firm-context { display:flex; align-items:flex-start; gap:11px; padding:13px 16px; border:1px solid var(--border); background:var(--surface); font-size:12px; line-height:1.6; color:var(--muted); margin-bottom:24px; }
+.firm-context svg { width:16px; height:16px; margin-top:2px; color:var(--green); }
+.firm-flow { display:flex; flex-wrap:wrap; gap:10px 28px; padding:0 0 22px; font:11px Mono,monospace; color:var(--green); }
+.firm-section-title { display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px; margin:28px 0 16px; }
+.firm-section-title h2 { font:500 25px/1.25 Serif,serif; }
+.firm-section-title>span { font-size:11px; color:var(--muted); }
+.firm-card-grid,.firm-source-grid { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:18px; }
+.firm-two-column { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:22px; }
+.firm-card { display:flex; flex-direction:column; align-items:flex-start; border:1px solid var(--border); padding:24px; min-width:0; }
+.firm-card-top { display:flex; align-items:center; justify-content:space-between; width:100%; gap:12px; margin-bottom:20px; color:var(--green); }
+.firm-status { display:inline-block; padding:4px 7px; border:1px solid var(--border); background:var(--surface); font:9px Mono,monospace; color:var(--muted); }
+.firm-card h2 { font:500 26px/1.25 Serif,serif; margin-bottom:12px; }
+.firm-card h3 { font:500 21px/1.25 Serif,serif; margin-bottom:12px; }
+.firm-card p { font-size:13px; line-height:1.65; }
+.firm-card>p { margin-bottom:18px; }
+.firm-card dl { font-size:12px; line-height:1.5; margin:0 0 22px; }
+.firm-card dt { font:10px Mono,monospace; color:var(--green); margin-top:15px; }
+.firm-card dd { margin:5px 0 0; color:var(--muted); }
+.firm-card>.button { margin-top:auto; }
+.firm-card.compact { padding:20px; }
+.firm-card.compact .firm-status { margin-bottom:13px; }
+.firm-source-links { display:flex; flex-wrap:wrap; gap:8px 14px; font-size:12px; margin:0 0 18px; }
+.firm-source-links .text-link { font-size:11px; }
+.firm-source-links svg { width:12px; height:12px; }
+.firm-candidate-list { border-top:1px solid var(--border); }
+.firm-candidate-list>article { display:grid; grid-template-columns:minmax(180px,1fr) minmax(160px,1fr) auto; align-items:center; gap:20px; padding:18px 0; border-bottom:1px solid var(--border); }
+.firm-candidate-list h3 { font-size:15px; }
+.firm-candidate-list .company-name-cell span:not(.company-mark) { font-size:11px; color:var(--muted); }
+.firm-candidate-list p { font-size:13px; }
+.firm-candidate-list>article>div:last-child { display:flex; flex-wrap:wrap; gap:8px; }
+.firm-selector { display:flex; align-items:center; flex-wrap:wrap; gap:12px; padding:0 0 23px; }
+.firm-selector label { font-size:13px; font-weight:500; }
+.firm-selector select { padding:9px 35px 9px 12px; border:1px solid var(--border); border-radius:3px; background:var(--surface); color:var(--ink); font:inherit; font-size:13px; }
+.firm-wide-panel { display:flex; align-items:center; justify-content:space-between; gap:25px; padding:24px; margin:26px 0; border:1px solid var(--border); background:var(--surface); }
+.firm-wide-panel h2 { font:500 24px/1.25 Serif,serif; margin-bottom:8px; }
+.firm-wide-panel p { font-size:13px; line-height:1.65; max-width:730px; }
+.firm-wide-panel>.button { flex-shrink:0; }
+.firm-review-tags { display:flex; flex-wrap:wrap; gap:8px; min-width:190px; }
+.firm-review-tags span { padding:6px 9px; border:1px solid var(--border); font-size:11px; color:var(--green); }
+.firm-small-copy { font-size:12px; line-height:1.65; color:var(--muted); margin:16px 0; }
+.firm-table-wrap { overflow-x:auto; border:1px solid var(--border); }
+.firm-table { border-collapse:collapse; width:100%; font-size:13px; min-width:660px; }
+.firm-table th { background:var(--surface); color:var(--muted); text-align:left; font:10px Mono,monospace; padding:14px 16px; }
+.firm-table td { padding:17px 16px; border-top:1px solid var(--border); color:var(--muted); }
+.firm-table .company-name { font-size:14px; }
+.firm-missing { font-size:11px; }
+.firm-question-list { padding-left:20px; margin:5px 0 25px; line-height:1.65; font-size:15px; }
+.firm-question-list li { padding:0 0 15px 4px; }
+.firm-card .firm-fine-print { font-size:11px; margin:12px 0 0; }
+.firm-empty { padding:28px; border:1px dashed var(--border); }
+.firm-empty h3 { font:500 23px Serif,serif; margin-bottom:8px; }
+.firm-empty p { font-size:13px; line-height:1.6; }
+.firm-work-list article { display:flex; align-items:center; justify-content:space-between; gap:20px; padding:18px 0; border-top:1px solid var(--border); }
+.firm-work-list h3 { font-size:15px; margin-bottom:6px; }
+.firm-work-list p { font-size:12px; }
+.firm-preview-body { white-space:pre-wrap; overflow-wrap:anywhere; font:13px/1.7 Sans,sans-serif; background:var(--surface); border:1px solid var(--border); padding:22px; margin:22px 0; }
+@media(max-width:1150px) { .firm-card-grid,.firm-source-grid { grid-template-columns:1fr; }.firm-candidate-list>article { grid-template-columns:1fr 1fr; }.firm-candidate-list>article>div:last-child { grid-column:1/-1; }.firm-card dl { display:grid; grid-template-columns:85px minmax(0,1fr); gap:12px; }.firm-card dt,.firm-card dd { margin:0; }.firm-card>p { margin-bottom:20px; } }
+@media(max-width:650px) { .firm-two-column { grid-template-columns:1fr; }.firm-wide-panel { flex-direction:column; align-items:flex-start; padding:20px; }.firm-candidate-list>article { grid-template-columns:1fr; gap:12px; }.firm-candidate-list>article>div:last-child { grid-column:1; }.firm-card { padding:20px; }.firm-preview-body { padding:15px; }.firm-selector select { max-width:100%; } }

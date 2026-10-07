@@ -1,3 +1,6 @@
+import { renderFirmPage } from "./firm-views.js";
+import { firmWorkflowDraft } from "../../packages/core/firm-workflows.js";
+const views = ["overview", "sourcing", "agents", "stats", "diligence", "operations", "companies", "research", "workspace", "about"];
 import { dashboardSnapshot } from "../../packages/core/dashboard.js";
 const $ = (selector, root = document) => root.querySelector(selector);
 const esc = (value = "") =>
@@ -54,6 +57,7 @@ const state = {
   csrf: null,
   workspaceError: null,
   view: "overview",
+  firmCompany: null,
   dashboardFilter: "recent",
   filter: "all",
   sector: "all",
@@ -165,13 +169,18 @@ function navItem(id, label, iconName, count = "") {
 function shell() {
   const labels = {
     overview: "Dashboard",
+    sourcing: "Sourcing",
+    agents: "Agents",
+    stats: "Portfolio stats",
+    diligence: "Diligence & relationships",
+    operations: "Operations",
     companies: "Companies",
     research: "Research briefs",
     workspace: "Saved work",
     about: "Sources & agent access",
   };
   document.title = `Anti Fund HQ — ${labels[state.view]}`;
-  app.innerHTML = `<aside class="sidebar" aria-label="Primary navigation"><button class="icon-button mobile-menu" data-action="close-menu" aria-label="Close navigation">${icon("close")}</button><a class="brand" href="#overview" aria-label="Anti Fund HQ overview"><img class="brand-logo" src="/assets/antifund-logo.png" alt=""><div><div class="brand-name">Anti Fund</div><div class="brand-sub">RESEARCH HQ</div></div></a><div class="nav-label">Workspace</div><nav>${navItem("overview", "Dashboard", "grid")}${navItem("companies", "Companies", "companies", state.research?.companies.length ?? "")}${navItem("research", "Research briefs", "research")}</nav><div class="sidebar-bottom">${navItem("workspace", "Saved work", "folder", state.workspace.length || "")}${navItem("about", "Sources & agent access", "connect")}<div class="sidebar-note"><strong>Prepared for Anti Fund.</strong><br>Research demo by Jeremy.<br>Built from public sources.</div></div></aside><div class="app-main"><header class="topbar"><button class="icon-button mobile-menu" data-action="open-menu" aria-label="Open navigation">${icon("menu")}</button><div class="breadcrumb"><span>Anti Fund HQ</span><span>/</span><span>${labels[state.view]}</span></div><div class="topbar-actions"><span class="prototype"><span class="dot"></span> Independent prototype</span>${external(github, "View repository")}</div></header><main class="content" id="main" tabindex="-1">${page()}</main></div>`;
+  app.innerHTML = `<aside class="sidebar" aria-label="Primary navigation"><button class="icon-button mobile-menu" data-action="close-menu" aria-label="Close navigation">${icon("close")}</button><a class="brand" href="#overview" aria-label="Anti Fund HQ overview"><img class="brand-logo" src="/assets/antifund-logo.png" alt=""><div><div class="brand-name">Anti Fund</div><div class="brand-sub">RESEARCH HQ</div></div></a><div class="nav-label">Firm workspace</div><nav aria-label="Firm workspace">${navItem("overview", "Dashboard", "grid")}${navItem("sourcing", "Sourcing", "search")}${navItem("agents", "Agents", "spark")}${navItem("stats", "Portfolio stats", "companies")}${navItem("diligence", "Diligence & relationships", "connect")}${navItem("operations", "Operations", "clock")}</nav><div class="nav-label">Research library</div><nav aria-label="Research library">${navItem("companies", "Companies", "companies", state.research?.companies.length ?? "")}${navItem("research", "Research briefs", "research")}</nav><div class="sidebar-bottom">${navItem("workspace", "Saved work", "folder", state.workspace.length || "")}${navItem("about", "Sources & agent access", "connect")}<div class="sidebar-note"><strong>Prepared for Anti Fund.</strong><br>Research demo by Jeremy.<br>Built from public sources.</div></div></aside><div class="app-main"><header class="topbar"><button class="icon-button mobile-menu" data-action="open-menu" aria-label="Open navigation">${icon("menu")}</button><div class="breadcrumb"><span>Anti Fund HQ</span><span>/</span><span>${labels[state.view]}</span></div><div class="topbar-actions"><span class="prototype"><span class="dot"></span> Independent prototype</span>${external(github, "View repository")}</div></header><main class="content" id="main" tabindex="-1">${page()}</main></div>`;
 }
 function page() {
   if (state.loading)
@@ -182,6 +191,7 @@ function page() {
     (
       {
         overview: overview,
+        ...Object.fromEntries(["sourcing", "agents", "stats", "diligence", "operations"].map(view => [view, () => renderFirmPage(view, {state, esc, heading, btn, icon, mark, external, date, relationship})])),
         companies: companies,
         research: research,
         workspace: workspace,
@@ -631,13 +641,7 @@ async function init() {
 }
 function navigate() {
   const route = location.hash.slice(1);
-  state.view = [
-    "overview",
-    "companies",
-    "research",
-    "workspace",
-    "about",
-  ].includes(route)
+  state.view = views.includes(route)
     ? route
     : "overview";
   shell();
@@ -678,6 +682,16 @@ document.addEventListener("click", async (event) => {
           shell();
         }
         break;
+      case "workflow-preview": {
+        const draft = firmWorkflowDraft(id, state.research, state.firmCompany);
+        openDialog(`<div class="eyebrow">Workflow preview</div><h1>${esc(draft.title)}</h1><p class="detail-subtitle">Inspect the example, then edit and save a copy to your private workspace.</p><pre class="firm-preview-body">${esc(draft.body)}</pre><div class="detail-actions">${btn("workflow-draft", `${icon("edit")} Use this template`, "primary", `data-id="${esc(id)}"`)}</div>`, "Workflow preview");
+        break;
+      }
+      case "workflow-draft": {
+        const draft = firmWorkflowDraft(id, state.research, state.firmCompany);
+        noteEditor(null, draft.companyId, draft);
+        break;
+      }
       case "open-company":
         openCompany(id);
         break;
@@ -819,6 +833,11 @@ document.addEventListener("input", (event) => {
   if (event.target.closest("#record-form")) editorDirty = true;
 });
 document.addEventListener("change", (event) => {
+  if (event.target.id === "firm-company") {
+    state.firmCompany = event.target.value;
+    shell();
+    $("#firm-company")?.focus({preventScroll:true});
+  }
   if (event.target.id === "sector-filter") {
     state.sector = event.target.value;
     $("#company-results").innerHTML = companyRows();
@@ -853,13 +872,7 @@ window.addEventListener("beforeunload", (event) => {
     event.returnValue = "";
   }
 });
-state.view = [
-  "overview",
-  "companies",
-  "research",
-  "workspace",
-  "about",
-].includes(location.hash.slice(1))
+state.view = views.includes(location.hash.slice(1))
   ? location.hash.slice(1)
   : "overview";
 init();

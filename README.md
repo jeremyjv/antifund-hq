@@ -27,6 +27,20 @@ Start with real public evidence on robotics, compute, and energy infrastructure.
 | Private saved work | Shortlist companies; create and edit notes and briefs; export, archive, restore, and inspect history | Carry research forward without losing earlier judgments |
 | Shared agent context | Query the same catalog through bounded, source-linked HTTP and MCP tools | Let an external agent use the evidence behind the dashboard |
 
+## Visualize the firm workspace
+
+Five lightweight work areas map directly to the role. They pair usable public research and private saved drafts with clearly labeled previews of future firm integrations.
+
+| Work area | Try now | What would be connected next |
+| --- | --- | --- |
+| **Sourcing** | Inspect public technical sources, review research candidates, save a shortlist, and draft a collection plan | GitHub, papers, hiring, launches, traffic, and social ingestion |
+| **Agents** | Select a company and preview sourcing, research, and diligence outputs; edit and save a template | Deployed agents, scheduling, run traces, and evaluations |
+| **Portfolio stats** | Explore a reporting layout using public portfolio names and prepare a metrics collection checklist | Company metrics, fund records, approved marks, and market comps |
+| **Diligence & relationships** | Prepare company-specific founder questions and technical review notes | Contacts, meeting history, introductions, and live deal context |
+| **Operations** | Preview weekly review, memo review, and quarterly reporting checklists; review your actual open saved work | Team assignments, approvals, schedules, and reporting integrations |
+
+Agent outputs are deterministic previews, not model executions. Financial placeholders mean **unknown**, never zero. No founder meeting, firm task, automation schedule, or integration is represented as active. Templates become real private records only when a visitor edits and saves them; they use the same D1 validation, versioning, and recovery flows as existing notes.
+
 ## What the dashboard measures
 
 The seeded snapshot was checked **October 7, 2026** and includes **11 companies, 24 primary-source references, 12 observations, three research briefs, and three thesis maps**.
