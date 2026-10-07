@@ -1,31 +1,83 @@
 # Anti Fund HQ
 
-**A working research desk for the physical AI thesis.**
+**What changed. Why it matters. What to investigate next.**
 
-An independent application prototype by Jeremy: explore a source-grounded company universe, examine original research hypotheses, and turn evidence into a private shortlist and diligence notes.
+[Open the live dashboard → antifundhq.com](https://antifundhq.com)
 
-[Open the dashboard](https://antifundhq.com) · [Research methodology](data/README.md) · [Architecture](docs/architecture.md) · [MVP scope](docs/scope.md)
+An independent application prototype by Jeremy, built around Anti Fund’s ambition to combine technical judgment, proprietary research, and agents. The working demo connects public company developments to investment questions, source-linked research notes, and reusable agent context.
+
+Start with real public evidence on robotics, compute, and energy infrastructure. Explore the dashboard without an account; save your own research in a private visitor workspace.
+
+[Research methodology](data/README.md) · [Architecture](docs/architecture.md) · [Agent context contract](docs/context-contract.md) · [Operations](docs/operations.md)
 
 ## Try it in two minutes
 
-1. Open **Dashboard** to see dated developments, research relevance, and the next question to investigate. Filter the 30-day snapshot, all dated updates, or undated evidence; choose **Investigate** to draft a source-linked note.
-2. Follow a company into its evidence, risks, and unanswered questions. Public Anti Fund investments and independent research examples are labeled separately.
-3. Save a company to your shortlist, assemble an editable brief, and add your judgment.
-4. Reload. Your edits are stored in Cloudflare D1. Explore history, archive a record, and restore it from Trash.
+1. **Open Dashboard.** Scan company updates alongside their research relevance and the question to resolve next. Switch between the past 30 days, all dated updates, and undated evidence.
+2. **Choose Investigate.** Open an editable note with the observation, research interpretation, company questions, and original source links. Add your judgment and save.
+3. **Explore a company or brief.** Inspect risks, counterarguments, and sources. Save a company to your shortlist or assemble an editable company brief.
+4. **Return to Saved work.** Reload to see cloud persistence. Edit a record, inspect its revision history, or archive and restore it from Trash.
 
-The first visit includes **11 companies, 24 primary-source references, 12 observations, three original research briefs, and three thesis maps**, checked October 7, 2026. Counts describe this curated research corpus, not Anti Fund's full portfolio or live deal pipeline.
+## What is working
 
-## What this demonstrates
+| Capability | What you can do | Why it matters |
+| --- | --- | --- |
+| Decision dashboard | Review dated developments, their relevance, and a concrete follow-up question | Move from an announcement to a focused investigation |
+| Company research | Explore public portfolio companies and independent research candidates with sources, risks, and questions | Keep company claims, relationships, and analytical judgment distinguishable |
+| Research briefs | Examine three hypotheses across robot data, the physical stack, and compute and energy constraints | Connect individual observations to a thesis and its counterarguments |
+| Private saved work | Shortlist companies; create and edit notes and briefs; export, archive, restore, and inspect history | Carry research forward without losing earlier judgments |
+| Shared agent context | Query the same catalog through bounded, source-linked HTTP and MCP tools | Let an external agent use the evidence behind the dashboard |
 
-- **Thesis into research:** maps robot data workflows, physical components and deployment, and the different timelines of compute and energy infrastructure.
-- **Evidence into action:** connects source observations to company briefs, counterarguments, diligence questions, notes and a shortlist.
-- **Shared agent context:** a bounded, source-linked research API and public read-only MCP tools reuse the same catalog as the interface.
-- **Reliable persistence:** owner-scoped records, strict validation, expected-version updates, immutable revisions and recoverable archive/restore.
-- **Inspectability:** source dates and check dates remain distinct; hypotheses and company-reported claims are labeled; unsupported financial metrics remain absent.
+## What the dashboard measures
+
+The seeded snapshot was checked **October 7, 2026** and includes **11 companies, 24 primary-source references, 12 observations, three research briefs, and three thesis maps**.
+
+The initial dashboard shows:
+
+- **3 dated updates** in the 30-day window ending on the snapshot date.
+- **2 distinct public portfolio companies** represented in those updates.
+- **8 observations without exact publication dates**, presented separately as context.
+
+These counts describe the curated research sample. They are not Anti Fund’s complete portfolio, live deal pipeline, or investment performance. The 30-day filter is anchored to the snapshot’s checked date; refreshing the page does not fetch new announcements. Publication dates and source-check dates remain separate, and unknown dates are never inferred.
+
+Public portfolio membership is attributed to Anti Fund’s published investments. Research candidates imply no relationship or investment intent. Sources establish what a company reported; they do not independently validate its technology or commercial performance.
+
+## Architecture and agent context
+
+The browser and external agents use one public catalog in Cloudflare D1. Shared core code supplies validation, dashboard calculations, and bounded retrieval; the Worker provides HTTP endpoints, the public MCP interface, and isolated visitor workspaces.
+
+```text
+apps/workspace/       Dashboard, company research, notes, and local brand assets
+apps/worker/          HTTP/MCP adapters, visitor sessions, and security boundary
+packages/core/       Validation, D1 access, dashboard logic, and context retrieval
+packages/connectors/ Public-source ingestion contract for future adapters
+agents/              Agent instructions and tool boundaries
+data/                Versioned research seed and source provenance
+migrations/          D1 schema and immutable revision triggers
+tests/               API, isolation, conflicts, dashboard, and provenance checks
+scripts/             Build, seed validation, retrieval evaluation, and deploy
+docs/                Architecture, context contract, methodology, and operations
+```
+
+Visitor queries are owner scoped. Writes require schema validation, an exact Origin match, a session-bound CSRF token, and the expected record version. Conflicts cannot silently overwrite a newer edit. Archiving preserves records and their revision history.
+
+### Connect an agent
+
+Use this Streamable HTTP MCP endpoint in a compatible client:
+
+```text
+https://antifundhq.com/mcp
+```
+
+| Tool | Purpose |
+| --- | --- |
+| `search_research` | Find relevant public research in the curated catalog |
+| `get_company_context` | Retrieve a bounded company context packet with source references |
+
+The public tools require no authentication. They cannot read visitor notes, modify records, send messages, or access provider credentials. Retrieval is lexical and bounded; semantic search and arbitrary data-source connections are future work. See the [context contract](docs/context-contract.md) for limits and a protocol example.
 
 ## Run locally
 
-Requires Node 22.13–22.x. No model API key or external database account is required for local development.
+Requires **Node 22.13–22.x**. Local development needs no model API key or external database account.
 
 ```sh
 npm ci
@@ -35,50 +87,35 @@ npm run seed:local
 npm run dev
 ```
 
-Open `http://localhost:4321`. Wrangler runs the same Worker and a local D1 database. Production records never use browser storage.
+Open `http://localhost:4321`. Wrangler runs the Worker with a local D1 database. The application does not substitute browser storage for cloud workspace records.
+
+### Validate changes
 
 ```sh
 npm run check
 npm run eval
 ```
 
-## Monorepo
+`check` builds the app, runs regression tests, and validates the seed and its source references. Tests cover visitor isolation, persistence, conflicting writes, revision history, archive/restore, MCP behavior, and dashboard date handling. `eval` runs curated retrieval cases and checks citation integrity and serialized context limits; it does not measure investment performance.
 
-```text
-apps/workspace/       Browser interface and official brand assets
-apps/worker/          HTTP, visitor sessions and public read-only MCP
-packages/core/       Schemas, owner-scoped data and bounded context retrieval
-packages/connectors/ Explicit public-source adapter contract
-agents/              Research instructions and boundaries
-data/                Auditable public research fixture and methodology
-migrations/          Cloudflare D1 schema and revision triggers
-tests/               API, isolation, conflicts and context regression checks
-scripts/             Build, seed validation, retrieval evaluation and deploy
-docs/                Architecture, limitations, operations and verification
-```
+Desktop and mobile browser verification also covers dashboard filters, investigation drafts, saving, reload persistence, editing, history, and archive/restore.
 
-## Connect an agent
+## Deploy and update research
 
-The public Streamable HTTP MCP endpoint is:
+The live app runs on an isolated Cloudflare Worker and D1 database, with `antifundhq.com` and `www.antifundhq.com` configured as custom domains. It has no access to Jeremy HQ data.
 
-```text
-https://antifundhq.com/mcp
-```
+Deploy with explicit project credentials using the [operations guide](docs/operations.md). For your own deployment, replace the Worker name, D1 binding, repository URL, and custom-domain routes in `wrangler.jsonc`; use your own database and domains. Credentials belong in an ignored environment file, never in Git or browser assets.
 
-It exposes `search_research` and `get_company_context`. No authentication is required for the public catalog. It cannot access visitor notes, change records, send messages, or retrieve provider credentials. See [the context contract](docs/context-contract.md) for retrieval behavior and a protocol example.
+To refresh the research, review primary sources, update `data/research-seed.json` with stable IDs and accurate publication/check dates, run validation and retrieval evaluations, and import the reviewed seed into D1. Public seed updates do not modify visitor records. See the [seeding methodology](data/README.md).
 
-## Research and privacy boundaries
+## Scope and privacy
 
-This is a curated public-source snapshot and an independent prototype, not Anti Fund's internal system. Public portfolio membership is attributed to Anti Fund's website; other companies are independent research examples, with no implied relationship or investment intent. Source links verify that a company made a claim, not that its technology or commercial performance has been independently validated.
+This is a **working public-source prototype**, not Anti Fund’s internal system. Private revenue, valuations, fund marks, and investment decisions are not connected. Investigation drafts and company briefs are deterministic compilations; there are no hidden model calls, autonomous agents, live ingestion jobs, or background outreach.
 
-Brief assembly is deterministic evidence scaffolding. There is no hidden model invocation, paid dataset, autonomous crawler, live fund accounting, or background outreach. Current retrieval is lexical and bounded; semantic indexing is a future extension, not a claimed feature.
+Saved work is stored in D1 and accessed through an opaque, HttpOnly browser cookie with a **30-day lifetime**. Losing that cookie loses access. Workspaces are tied to the browser and hostname; switching between the custom domain and the original Workers URL does not migrate saved work. Use the canonical [antifundhq.com](https://antifundhq.com) address and export anything you want to keep. Cross-device sign-in and account recovery are outside this MVP.
 
-Visitor records are stored in D1 and isolated by an opaque, HttpOnly browser cookie with a **30-day lifetime**. Clearing or losing that cookie loses access; account recovery and cross-device sign-in are outside this MVP. Export records before that period ends. This public application demo is for research notes, not confidential fund documents. Organization identity and access controls would be a separate deployment step before real firm adoption.
-
-## Deploy
-
-Use explicit project credentials with Workers and D1 permissions. Never use a default Wrangler account. See [operations](docs/operations.md). Production uses an isolated Worker and D1 database; it has no access to Jeremy HQ data.
+The next step toward firm adoption would be organization sign-in and permissions, approved data connectors with ingestion history, and evaluated agent workflows with traceable outputs. This public demo is intended for research notes, not confidential fund documents.
 
 ## Attribution
 
-Anti Fund and portfolio company marks belong to their respective owners. They are used to identify the subject of this independent application prototype. Asset sources and font licenses are listed in [asset provenance](apps/workspace/assets/SOURCES.md). No affiliation or endorsement is implied.
+Built by Jeremy as an independent application prototype, unaffiliated with Anti Fund. Anti Fund and company marks belong to their respective owners and identify the subjects of this demo. See [asset provenance and font licenses](apps/workspace/assets/SOURCES.md). No affiliation or endorsement is implied.
