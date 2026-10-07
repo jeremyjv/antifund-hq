@@ -648,10 +648,10 @@
   "briefs": [
     {
       "id": "brief-data-loop",
-      "title": "The next robotics bottleneck may be the data loop",
-      "subtitle": "A research question between model progress and reliable deployment.",
+      "title": "Robot data tools",
+      "subtitle": "Can helping robots learn from mistakes become a lasting business?",
       "bottleneck": "Turning fleet experience into reusable learning",
-      "summary": "Research hypothesis: better robot models increase the value of infrastructure that traces failures, selects useful examples, and verifies improvements. Study the workflow around the model, then test whether it supports a durable business.",
+      "summary": "Robots need tools that turn real-world failures into better training data. Compare the companies building those tools, then test whether customers will pay for them over free or in-house alternatives.",
       "companyIds": [
         "skild-ai",
         "foxglove",
@@ -722,10 +722,10 @@
     },
     {
       "id": "brief-physical-stack",
-      "title": "Before a robot scales, its physical stack has to",
-      "subtitle": "Follow the factory and the field, not only the demonstration.",
+      "title": "Robot hardware",
+      "subtitle": "Which suppliers can make robots reliable enough to scale?",
       "bottleneck": "Repeatable hardware and dependable deployment",
-      "summary": "Research hypothesis: perception, actuation, and integration deserve their own diligence map. A capable policy becomes economically useful only when hardware can be built consistently and the deployed system handles real operating conditions.",
+      "summary": "Better AI still needs dependable motors, sensors, and hardware. Look for companies that can manufacture consistently and keep robots working in real customer environments.",
       "companyIds": [
         "westmag",
         "efference",
@@ -787,10 +787,10 @@
     },
     {
       "id": "brief-power-compute",
-      "title": "Underwrite the constraint, and its clock",
-      "subtitle": "Compute, nuclear fuel, and fusion solve different timing problems.",
+      "title": "AI compute & energy",
+      "subtitle": "Who can deliver the compute and power customers need—and when?",
       "bottleneck": "Useful compute within power and delivery constraints",
-      "summary": "Research hypothesis: map compute and energy opportunities by when they can relieve a specific customer constraint. Operational software, inference hardware, nuclear fuel, and new generation should not share one undifferentiated timeline.",
+      "summary": "Compare available compute with hardware, nuclear fuel, and power projects still in development. Separate what customers can use today from milestones and promises that need more proof.",
       "companyIds": [
         "modal",
         "etched",

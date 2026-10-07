@@ -205,7 +205,7 @@ function overview() {
   <section class="decision-feed" aria-labelledby="changes-title"><div class="decision-section-heading"><div><h2 id="changes-title">Developments to investigate</h2><p>Company-reported evidence. Relevance and next steps are research judgment.</p></div><div class="decision-filters" role="group" aria-label="Update timeframe">${filters.map(([id,label,count])=>`<button data-action="dashboard-filter" data-id="${id}" aria-pressed="${state.dashboardFilter === id}">${label} <span>${count}</span></button>`).join("")}</div></div>
   <div class="decision-table-head" aria-hidden="true"><span>Company / source date</span><span>What changed & why it matters</span><span>What to check next</span></div>
   <div class="decision-rows">${rows.length ? rows.map(decisionRow).join("") : '<div class="empty-state"><h3>No dated updates in this window.</h3><p>Review all dated updates or undated evidence above.</p></div>'}</div></section>
-  <section class="dashboard-briefs" aria-labelledby="thesis-title"><div class="decision-section-heading"><div><h2 id="thesis-title">The bigger investment questions</h2><p>Connect individual developments to a research thesis.</p></div><a class="text-link" href="#research">All research ${icon("arrow")}</a></div><div class="dashboard-brief-grid">${r.briefs.map(b=>`<button data-action="open-brief" data-id="${esc(b.id)}"><span class="small-label">Research hypothesis · ${b.sourceIds.length} sources</span><h3>${esc(b.title)}</h3><span class="text-link">Read brief ${icon("arrow")}</span></button>`).join("")}</div></section>
+  <section class="dashboard-briefs" aria-labelledby="thesis-title"><div class="decision-section-heading"><div><h2 id="thesis-title">The bigger investment questions</h2><p>Connect individual developments to a research thesis.</p></div><a class="text-link" href="#research">All research ${icon("arrow")}</a></div><div class="dashboard-brief-grid">${r.briefs.map(b=>`<button data-action="open-brief" data-id="${esc(b.id)}"><span class="small-label">Research hypothesis · ${b.sourceIds.length} sources</span><h3>${esc(b.title)}</h3><p class="dashboard-brief-question">${esc(b.subtitle)}</p><span class="text-link">Read brief ${icon("arrow")}</span></button>`).join("")}</div></section>
   <p class="dashboard-boundary">Coverage: ${r.companies.length} companies in this public research sample. Private revenue, valuations, fund marks, and investment decisions are not connected.</p></div>`;
 }
 function decisionRow(s) {
@@ -253,7 +253,10 @@ function companies() {
     )}</div><select id="sector-filter" class="select" aria-label="Filter by sector"><option value="all">All sectors</option>${sectors.map((s) => `<option value="${esc(s)}" ${state.sector === s ? "selected" : ""}>${esc(s)}</option>`).join("")}</select><label class="search-field">${icon("search")}<input id="company-search" type="search" value="${esc(state.query)}" placeholder="Search companies or topics" aria-label="Search companies"></label></div><div class="table-wrap" id="company-results">${companyRows()}</div><p class="small-copy muted stack-space">Portfolio relationships follow Anti Fund’s public website. Research candidates are included for investigation; inclusion does not imply an investment, endorsement, or private relationship.</p>`;
 }
 function research() {
-  return `${heading("Research briefs", "Three questions worth investigating.", "Each brief explains an idea, links the evidence, and suggests what to investigate next.")}<div class="brief-grid">${state.research.briefs.map((b, i) => `<article class="research-card"><span class="eyebrow">0${i + 1} / Research hypothesis</span><h2>${esc(b.title)}</h2><p>${esc(b.summary)}</p><footer>${b.companyIds.length} companies · ${b.sourceIds.length} sources · ${b.questions.length} open questions</footer>${btn("open-brief", `Read the brief ${icon("arrow")}`, "", `data-id="${esc(b.id)}"`)}</article>`).join("")}<article class="research-card" style="background:var(--surface)"><span class="eyebrow">Your next research question</span><h2>Where would you look next?</h2><p>Take a thesis, challenge an assumption, or write a question worth asking a founder. Keep the evidence and your judgment together.</p>${btn("new-note", `${icon("plus")} Start a research note`)}</article></div>`;
+  return `${heading("Research briefs", "Turn a thesis into a founder conversation.", "Choose an investment question. Review the evidence, compare companies, and prepare what to ask next.")}
+  <div class="opportunity-grid">${state.research.briefs.map((b,i)=>`<article class="opportunity-card"><header><span class="opportunity-icon">${icon(["research","companies","spark"][i] || "research")}</span><h2>${esc(b.title)}</h2></header><p class="opportunity-question">${esc(b.subtitle)}</p><p class="opportunity-summary">${esc(b.summary)}</p><div class="opportunity-companies"><span class="small-label">Companies to explore</span><div>${b.companyIds.slice(0,3).map(id=>{const c=company(id);return `<button data-action="open-company" data-id="${esc(id)}">${mark(c)}${esc(c.name)}</button>`;}).join("")}${b.companyIds.length>3?`<button class="more-companies" data-action="open-brief" data-id="${esc(b.id)}">+${b.companyIds.length-3} more</button>`:""}</div></div><footer><span>${b.sourceIds.length} linked sources · ${b.questions.length} founder questions</span>${btn("open-brief", `Review evidence ${icon("arrow")}`, "primary", `data-id="${esc(b.id)}" aria-label="Review ${esc(b.title)} evidence"`)}${btn("brief-note", "Prepare founder questions", "text-action", `data-id="${esc(b.id)}" aria-label="Prepare questions about ${esc(b.title)}"`)}</footer></article>`).join("")}</div>
+  <p class="research-caption">Original research hypotheses built from public sources. Each brief includes counterarguments and unanswered questions; none is a completed investment recommendation.</p>
+  <section class="research-own-angle"><div><h2>See a different opportunity?</h2><p>Capture the idea, the evidence you need, and the next person to speak with.</p></div>${btn("new-note", `${icon("plus")} Start a research note`)}</section>`;
 }
 function workspace() {
   const isTrash = state.workspaceTab === "trash";
@@ -370,12 +373,13 @@ function openBrief(id) {
   if (!b) return;
   const sections = b.sections;
   openDialog(`<div class="eyebrow">Research brief · ${b.sourceIds.length} sources</div><h1>${esc(b.title)}</h1>
+  <p class="brief-investment-question"><span>Investment question</span>${esc(b.subtitle)}</p>
   <p class="detail-subtitle">${esc(b.summary.replace(/^Research hypothesis: /,'').replace(/^./, c => c.toUpperCase()))}</p>
   <p class="brief-qualification">A research hypothesis based on public company material. It still needs independent testing.</p>
   <section class="brief-step"><span>01</span><div><h2>What we found</h2><p>${esc(sections[0]?.body || b.summary)}</p>${citations(sections[0]?.sourceIds || b.sourceIds)}</div></section>
   <section class="brief-step"><span>02</span><div><h2>What could prove this wrong?</h2>${list(b.counterpoints)}</div></section>
   <section class="brief-step"><span>03</span><div><h2>What to ask next</h2>${list(b.questions)}</div></section>
-  <div class="detail-actions">${btn("brief-note", `${icon("plus")} Draft follow-up questions`, "primary", `data-id="${esc(b.id)}"`)}${btn("export-brief", `${icon("download")} Export brief`, "", `data-id="${esc(b.id)}"`)}</div>
+  <div class="detail-actions">${btn("brief-note", `${icon("plus")} Prepare founder questions`, "primary", `data-id="${esc(b.id)}"`)}${btn("export-brief", `${icon("download")} Export brief`, "", `data-id="${esc(b.id)}"`)}</div>
   <section class="detail-section"><h2>Explore the companies</h2>${chips(b.companyIds)}</section>
   <details class="secondary-detail"><summary>Read the full analysis</summary>${sections.slice(1).map(section=>`<section class="detail-section"><h2>${esc(section.title)}</h2><p>${esc(section.body)}</p>${citations(section.sourceIds)}</section>`).join('')}</details>
   <details class="secondary-detail"><summary>View all ${b.sourceIds.length} sources</summary>${evidence(b.sourceIds)}</details>`, "Research brief");
@@ -730,7 +734,7 @@ document.addEventListener("click", async (event) => {
         noteEditor(null, null, {
           type: "note",
           title: `Investigate: ${b.title}`,
-          body: `Research hypothesis\n${b.summary}\n\nQuestions to pursue\n${b.questions.map((q) => `- ${q}`).join("\n")}\n\nMy evidence and next steps\n`,
+          body: `Investment question\n${b.subtitle}\n\nResearch hypothesis\n${b.summary}\n\nQuestions to pursue\n${b.questions.map((q) => `- ${q}`).join("\n")}\n\nSource evidence\n${sourceList(b.sourceIds).map(src => `${src.title}: ${src.url} (checked ${src.checkedAt})`).join("\n")}\n\nMy evidence and next steps\n`,
           status: "open",
         });
         break;

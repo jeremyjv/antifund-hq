@@ -23,7 +23,7 @@ Start with real public evidence on robotics, compute, and energy infrastructure.
 | --- | --- | --- |
 | Decision dashboard | Review dated developments, their relevance, and a concrete follow-up question | Move from an announcement to a focused investigation |
 | Company research | Explore public portfolio companies and independent research candidates with sources, risks, and questions | Keep company claims, relationships, and analytical judgment distinguishable |
-| Research briefs | Examine three hypotheses across robot data, the physical stack, and compute and energy constraints | Connect individual observations to a thesis and its counterarguments |
+| Research briefs | Explore **Robot data tools**, **Robot hardware**, and **AI compute & energy**; review evidence or prepare founder questions | Turn an investment question into a focused founder conversation |
 | Private saved work | Shortlist companies; create and edit notes and briefs; export, archive, restore, and inspect history | Carry research forward without losing earlier judgments |
 | Shared agent context | Query the same catalog through bounded, source-linked HTTP and MCP tools | Let an external agent use the evidence behind the dashboard |
 
