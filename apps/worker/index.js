@@ -1,5 +1,6 @@
-import { ApiError, parseBody, recordCreate, recordUpdate, focusCreate, focusUpdate, weekId } from '../../packages/core/schema.js';
+import { ApiError, parseBody, recordCreate, recordUpdate, focusCreate, focusUpdate, weekId, goalCreate, goalUpdate } from '../../packages/core/schema.js';
 import { TEAM, listFocuses, createFocus, updateFocus } from '../../packages/core/team.js';
+import { listGoals, createGoal, updateGoal } from '../../packages/core/goals.js';
 import { catalog, listRecords, createRecord, updateRecord, history } from '../../packages/core/store.js';
 import { buildContext } from '../../packages/core/context.js';
 import { session, verifyWrite } from './session.js';
@@ -36,6 +37,22 @@ async function route(request, env) {
   if (path === '/api/team' && request.method === 'GET') {
     const auth = await session(request, env.DB, true);
     return json({ members: TEAM, focuses: await listFocuses(env.DB, auth.row.id, url.searchParams.get('week') ? weekParam(url.searchParams.get('week')) : undefined), csrfToken: auth.row.csrf_token }, 200, auth.cookie ? { 'Set-Cookie': auth.cookie } : {});
+  }
+  if (path === '/api/goals' && request.method === 'GET') {
+    const auth = await session(request, env.DB, true);
+    return json({ goals: await listGoals(env.DB, auth.row.id), csrfToken: auth.row.csrf_token }, 200, auth.cookie ? { 'Set-Cookie': auth.cookie } : {});
+  }
+  if (path === '/api/goals' && request.method === 'POST') {
+    const auth = await session(request, env.DB);
+    verifyWrite(request, auth.row);
+    return json({ goal: await createGoal(env.DB, auth.row.id, await parseBody(request, goalCreate)) }, 201);
+  }
+  const goalRoute = path.match(/^\/api\/goals\/([a-f0-9-]{36})$/);
+  if (goalRoute) {
+    if (request.method !== 'PATCH') throw new ApiError(405, 'Method not allowed');
+    const auth = await session(request, env.DB);
+    verifyWrite(request, auth.row);
+    return json({ goal: await updateGoal(env.DB, auth.row.id, goalRoute[1], await parseBody(request, goalUpdate)) });
   }
   if (path === '/api/team/focus' && request.method === 'POST') {
     const auth = await session(request, env.DB);

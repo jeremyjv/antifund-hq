@@ -63,3 +63,9 @@ export const focusUpdate = z.object({
     archived: z.boolean().optional(),
   }).strict().refine(value => Object.keys(value).length > 0, 'Supply at least one change'),
 }).strict();
+
+export const goalCreate = z.object({
+  horizon: z.enum(['month', 'quarter', 'year']),
+  title: z.string().trim().min(1).max(200),
+}).strict();
+export const goalUpdate = focusUpdate;

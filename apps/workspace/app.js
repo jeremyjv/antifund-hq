@@ -1,8 +1,8 @@
 import { renderMarketOverview } from './market-overview.js';
 import { renderFirmPage } from "./firm-views.js";
 import { renderKpis } from "./kpis.js";
+import { sections, views, labels, sectionOf, plannedPages } from "./sections.js";
 import { firmWorkflowDraft } from "../../packages/core/firm-workflows.js";
-const views = ["overview", "sourcing", "agents", "stats", "diligence", "operations", "companies", "research", "workspace", "about"];
 import { dashboardSnapshot } from "../../packages/core/dashboard.js";
 const $ = (selector, root = document) => root.querySelector(selector);
 const esc = (value = "") =>
@@ -35,6 +35,13 @@ const icons = {
   "chevron-left": '<path d="m15 6-6 6 6 6"/>',
   "chevron-right": '<path d="m9 6 6 6-6 6"/>',
   home: '<path d="M3 11 12 4l9 7"/><path d="M5 10v10h5v-6h4v6h5V10"/>',
+  feed: '<path d="M4 5h16M4 12h16M4 19h10"/>',
+  log: '<rect x="5" y="3" width="14" height="18" rx="2"/><path d="M9 8h6M9 12h6M9 16h3"/>',
+  people: '<circle cx="9" cy="8" r="3.5"/><path d="M2.5 20a6.5 6.5 0 0 1 13 0"/><circle cx="17" cy="9" r="2.5"/><path d="M16 14.5a5 5 0 0 1 5.5 5"/>',
+  pin: '<path d="M12 21s7-6.2 7-11.5A7 7 0 0 0 5 9.5C5 14.8 12 21 12 21z"/><circle cx="12" cy="9.5" r="2.5"/>',
+  chart: '<path d="M4 20V4M4 20h16"/><path d="m7 15 4-5 3 3 5-7"/>',
+  megaphone: '<path d="M3 10v4h3l7 4V6L6 10H3zM16 9a4 4 0 0 1 0 6"/>',
+  plug: '<path d="M9 3v5M15 3v5M6 8h12v3a6 6 0 0 1-12 0V8zM12 17v4"/>',
   plus: '<path d="M12 5v14M5 12h14"/>',
   search: '<circle cx="10.5" cy="10.5" r="6.5"/><path d="m16 16 5 5"/>',
   close: '<path d="m6 6 12 12M18 6 6 18"/>',
@@ -73,6 +80,9 @@ const state = {
   teamError: null,
   refocusMember: null,
   week: null,
+  goals: null,
+  goalsError: null,
+  setupMember: null,
 };
 const github = "https://github.com/jeremyjv/antifund-hq";
 const app = $("#app");
@@ -176,20 +186,11 @@ function navItem(id, label, iconName, count = "") {
   return `<a class="nav-item ${state.view === id ? "active" : ""}" href="#${id}" ${state.view === id ? 'aria-current="page"' : ""}>${icon(iconName)}<span>${label}</span>${count !== "" ? `<span class="nav-count">${count}</span>` : ""}</a>`;
 }
 function shell() {
-  const labels = {
-    overview: "Home",
-    sourcing: "Sourcing",
-    agents: "Agents",
-    stats: "Market stats",
-    diligence: "Diligence & relationships",
-    operations: "Operations",
-    companies: "Companies",
-    research: "Research briefs",
-    workspace: "Saved work",
-    about: "Sources & agent access",
-  };
+  const current = sectionOf(state.view);
   document.title = `Anti Fund HQ — ${labels[state.view]}`;
-  app.innerHTML = `<aside class="sidebar" aria-label="Primary navigation"><button class="icon-button mobile-menu" data-action="close-menu" aria-label="Close navigation">${icon("close")}</button><a class="brand" href="#overview" aria-label="Anti Fund HQ overview"><img class="brand-logo" src="/assets/antifund-logo.png" alt=""><div><div class="brand-name">Anti Fund</div><div class="brand-sub">RESEARCH HQ</div></div></a><div class="nav-label">Firm workspace</div><nav aria-label="Firm workspace">${navItem("overview", "Home", "home")}${navItem("sourcing", "Sourcing", "search")}${navItem("agents", "Agents", "spark")}${navItem("stats", "Market stats", "companies")}${navItem("diligence", "Diligence & relationships", "connect")}${navItem("operations", "Operations", "clock")}</nav><div class="nav-label">Research library</div><nav aria-label="Research library">${navItem("companies", "Companies", "companies", state.research?.companies.length ?? "")}${navItem("research", "Research briefs", "research")}</nav><div class="sidebar-bottom">${navItem("workspace", "Saved work", "folder", state.workspace.length || "")}${navItem("about", "Sources & agent access", "connect")}<div class="sidebar-note"><strong>Prepared for Anti Fund.</strong><br>Research demo by Jeremy.<br>Built from public sources.</div></div></aside><div class="app-main"><header class="topbar"><button class="icon-button mobile-menu" data-action="open-menu" aria-label="Open navigation">${icon("menu")}</button><div class="breadcrumb"><span>Anti Fund HQ</span><span>/</span><span>${labels[state.view]}</span></div><div class="topbar-actions"><span class="prototype"><span class="dot"></span> Independent prototype</span>${external(github, "View repository")}</div></header><main class="content" id="main" tabindex="-1">${page()}</main></div>`;
+  const rail = sections.map((sec) => `<a class="rail-item ${sec.id === current.id ? "active" : ""}" href="#${sec.pages[0][0]}" ${sec.id === current.id ? 'aria-current="true"' : ""}>${icon(sec.icon)}<span>${esc(sec.label)}</span></a>`).join("");
+  const pages = current.pages.map(([id, label, ic]) => navItem(id, label, ic, id === "companies" ? state.research?.companies.length ?? "" : id === "workspace" ? state.workspace.length || "" : "")).join("");
+  app.innerHTML = `<aside class="sidebar" aria-label="Primary navigation"><button class="icon-button mobile-menu" data-action="close-menu" aria-label="Close navigation">${icon("close")}</button><a class="brand" href="#overview" aria-label="Anti Fund HQ home"><img class="brand-logo" src="/assets/antifund-logo.png" alt=""><div><div class="brand-name">Anti Fund</div><div class="brand-sub">HQ</div></div></a><div class="side-body"><nav class="rail" aria-label="Sections">${rail}</nav><div class="side-panel"><div class="side-title">${esc(current.title)}</div><p class="side-desc">${esc(current.desc)}</p><nav aria-label="${esc(current.title)} pages">${pages}</nav></div></div><div class="sidebar-note"><strong>Prepared for Anti Fund.</strong> Prototype by Jeremy, built from public sources.</div></aside><div class="app-main"><header class="topbar"><button class="icon-button mobile-menu" data-action="open-menu" aria-label="Open navigation">${icon("menu")}</button><div class="breadcrumb"><span>Anti Fund HQ</span><span>/</span><span>${esc(current.title)}</span><span>/</span><span>${esc(labels[state.view])}</span></div><div class="topbar-actions"><span class="prototype"><span class="dot"></span> Independent prototype</span>${external(github, "View repository")}</div></header><main class="content" id="main" tabindex="-1">${page()}</main></div>`;
 }
 function page() {
   if (state.loading)
@@ -205,6 +206,8 @@ function page() {
         research: research,
         workspace: workspace,
         about: about,
+        "agent-setup": agentSetup,
+        ...Object.fromEntries(Object.keys(plannedPages).map((view) => [view, () => plannedPage(plannedPages[view])])),
       }[state.view] || overview
     )() + footer()
   );
@@ -250,8 +253,35 @@ function teamHome() {
     : !state.team
       ? `<div class="loading-line"></div>`
       : `<div class="team-columns">${state.team.members.map(teamColumn).join("")}</div>`;
-  return `<section class="home-greeting"><h1>${greeting(now)}</h1><span>${esc(now.toLocaleDateString(undefined, { weekday: "long", month: "long", day: "numeric" }))}</span></section>
+  return `<section class="home-greeting"><h1>${greeting(now)}</h1><span>${esc(now.toLocaleDateString(undefined, { weekday: "long", month: "long", day: "numeric" }))}</span></section>${goalsBoard()}
   <section class="team-board" aria-label="Team focuses by week"><div class="team-board-head"><span class="eyebrow">${esc(weekLabel(state.week))}</span><span class="team-week">${esc(weekRange(state.week))}</span>${state.week !== weekKey(mondayOf()) ? `<button type="button" class="week-today" data-action="week-today">Back to this week</button>` : ""}<span class="pill" title="Illustrative focuses until team members sign in. Your edits are saved to this browser's private workspace.">Sample focuses</span><div class="week-nav"><button type="button" class="icon-button" data-action="week-prev" aria-label="Previous week">${icon("chevron-left")}</button><button type="button" class="icon-button" data-action="week-next" aria-label="Next week">${icon("chevron-right")}</button></div></div>${board}</section>${renderKpis(esc)}`;
+}
+function plannedPage(p) {
+  return `${heading(p.eyebrow, p.title, p.desc)}<div class="planned-grid"><section class="panel"><div class="eyebrow">Feeds from</div><ul class="planned-list">${p.inputs.map((x) => `<li>${esc(x)}<span class="pill">Not connected</span></li>`).join("")}</ul></section><section class="panel"><div class="eyebrow">What the team gets</div><p class="planned-output">${esc(p.output)}</p><a class="button" href="#integrations">${icon("plug")} See integrations</a></section></div>`;
+}
+const setupClients = (url) => [
+  ["Claude Code", "Run once in your terminal:", `claude mcp add --transport http antifund-hq ${url}`],
+  ["Claude (desktop & web)", "Settings → Connectors → Add custom connector, then paste:", url],
+  ["Cursor", "Add to ~/.cursor/mcp.json:", JSON.stringify({ mcpServers: { "antifund-hq": { url } } }, null, 2)],
+  ["Codex & others", "Any client that supports remote MCP over HTTP:", url],
+];
+function agentSetup() {
+  const url = `${location.origin}/mcp`;
+  const who = state.setupMember || "geoff";
+  const members = state.team?.members || [];
+  return `${heading("Connect / Agent setup", "Plug your agent into HQ in one step.", "Every teammate connects their own AI agent to the same firm context: research, sources, and soon pipeline, relationships, and portfolio data.")}
+  <div class="setup-people" role="group" aria-label="Choose teammate">${members.map((m) => `<button type="button" class="setup-person ${m.id === who ? "active" : ""}" data-action="setup-member" data-id="${esc(m.id)}" aria-pressed="${m.id === who}">${esc(m.name)}</button>`).join("")}</div>
+  <div class="setup-grid">${setupClients(url).map(([name, how, code]) => `<section class="panel setup-card"><div class="eyebrow">${esc(name)}</div><p>${esc(how)}</p><pre class="code-field">${esc(code)}</pre>${btn("copy-text", `${icon("connect")} Copy`, "small", `data-copy="${esc(code)}"`)}</section>`).join("")}</div>
+  <section class="panel"><div class="eyebrow">What ${esc(members.find((m) => m.id === who)?.name || "your")} agent can do today</div><ul class="planned-list"><li>Search public research with sources and dates<span class="pill portfolio">Live</span></li><li>Pull bounded context on any tracked company<span class="pill portfolio">Live</span></li><li>Read and update weekly focuses & goals<span class="pill">With sign-in</span></li><li>Log founder meetings and pipeline moves<span class="pill">With sign-in</span></li></ul><p class="small-copy">Try asking: “What evidence supports the robotics data-loop thesis, and what would change our mind?”</p></section>`;
+}
+const HORIZONS = [["month", "Next month"], ["quarter", "Next 3 months"], ["year", "This year"]];
+function goalsBoard() {
+  if (state.goalsError) return `<section class="goals-board"><div class="team-board-error"><p>Goals could not load. ${esc(state.goalsError)}</p>${btn("retry-goals", "Try again", "small")}</div></section>`;
+  if (!state.goals) return `<section class="goals-board"><div class="loading-line"></div></section>`;
+  return `<section class="goals-board" aria-label="Direction"><div class="team-board-head"><span class="eyebrow">Direction</span><span class="team-week">Where we are going</span><span class="pill" title="Illustrative goals until the team sets its own.">Sample goals</span></div><div class="goal-columns">${HORIZONS.map(([h, label]) => {
+    const items = state.goals.filter((g) => g.horizon === h);
+    return `<article class="team-col goal-col"><header><strong>${label}</strong><span>${items.filter((g) => g.done).length} of ${items.length}</span></header><ul class="focus-list">${items.map((g) => `<li class="${g.done ? "done" : ""}"><label><input type="checkbox" data-goal-toggle="${esc(g.id)}" ${g.done ? "checked" : ""}><span>${esc(g.title)}</span></label><button type="button" class="focus-remove" data-action="goal-remove" data-id="${esc(g.id)}" aria-label="Remove goal: ${esc(g.title)}">${icon("close")}</button></li>`).join("")}</ul><form class="focus-add goal-add" data-horizon="${h}"><input name="title" maxlength="200" autocomplete="off" placeholder="Add a goal…" aria-label="Add a goal for ${label.toLowerCase()}"></form></article>`;
+  }).join("")}</div></section>`;
 }
 function overview() {
   const r = state.research;
@@ -560,11 +590,30 @@ async function loadTeam() {
 }
 function renderTeam() {
   if (state.view !== "overview") return;
-  const active = document.activeElement?.closest?.(".focus-add")?.dataset.member;
+  const activeForm = document.activeElement?.closest?.(".focus-add");
+  const active = activeForm?.dataset.member || (activeForm?.dataset.horizon && `h:${activeForm.dataset.horizon}`);
   shell();
   const member = state.refocusMember || active;
   state.refocusMember = null;
-  if (member) $(`.focus-add[data-member="${member}"] input`)?.focus({ preventScroll: true });
+  if (member?.startsWith("h:")) $(`.goal-add[data-horizon="${member.slice(2)}"] input`)?.focus({ preventScroll: true });
+  else if (member) $(`.focus-add[data-member="${member}"] input`)?.focus({ preventScroll: true });
+}
+async function loadGoals() {
+  try {
+    const result = await api("/api/goals");
+    state.goals = result.goals;
+    state.csrf = result.csrfToken;
+    state.goalsError = null;
+  } catch (error) {
+    state.goalsError = error.message;
+  }
+}
+async function patchGoal(id, changes) {
+  const g = state.goals.find((x) => x.id === id);
+  if (!g) return;
+  const { goal } = await api(`/api/goals/${id}`, { method: "PATCH", body: JSON.stringify({ expectedVersion: g.version, changes }) });
+  if (changes.archived) state.goals = state.goals.filter((x) => x.id !== id);
+  else Object.assign(g, goal);
 }
 async function patchFocus(id, changes) {
   const f = state.team.focuses.find((x) => x.id === id);
@@ -715,7 +764,7 @@ async function init() {
     api("/api/research"),
     loadWorkspace(),
   ]);
-  await loadTeam();
+  await Promise.all([loadTeam(), loadGoals()]);
   if (results[0].status === "fulfilled") state.research = results[0].value;
   else state.researchError = results[0].reason.message;
   if (results[1].status === "rejected")
@@ -764,6 +813,27 @@ document.addEventListener("click", async (event) => {
         await loadTeam();
         renderTeam();
         if (action !== "week-today") $(`[data-action="${action}"]`)?.focus({ preventScroll: true });
+        break;
+      case "retry-goals":
+        await loadGoals();
+        renderTeam();
+        break;
+      case "goal-remove": {
+        button.disabled = true;
+        const g = state.goals.find((x) => x.id === id);
+        await patchGoal(id, { archived: true });
+        renderTeam();
+        toast(`Removed "${g?.title || "goal"}".`);
+        break;
+      }
+      case "setup-member":
+        state.setupMember = id;
+        shell();
+        $(`[data-action="setup-member"][data-id="${id}"]`)?.focus({ preventScroll: true });
+        break;
+      case "copy-text":
+        await navigator.clipboard.writeText(button.dataset.copy);
+        toast("Copied.");
         break;
       case "retry-team":
         await loadTeam();
@@ -939,6 +1009,19 @@ document.addEventListener("input", (event) => {
   if (event.target.closest("#record-form")) editorDirty = true;
 });
 document.addEventListener("change", async (event) => {
+  const goalToggle = event.target.dataset?.goalToggle;
+  if (goalToggle) {
+    event.target.disabled = true;
+    try {
+      await patchGoal(goalToggle, { done: event.target.checked });
+    } catch (error) {
+      toast(error.message, true);
+      if (error.status === 409) await loadGoals();
+    }
+    renderTeam();
+    $(`[data-goal-toggle="${goalToggle}"]`)?.focus({ preventScroll: true });
+    return;
+  }
   const toggle = event.target.dataset?.focusToggle;
   if (toggle) {
     event.target.disabled = true;
@@ -964,6 +1047,24 @@ document.addEventListener("change", async (event) => {
   if (event.target.closest("#record-form")) editorDirty = true;
 });
 document.addEventListener("submit", async (event) => {
+  const goalAdd = event.target.closest(".goal-add");
+  if (goalAdd) {
+    event.preventDefault();
+    const input = goalAdd.elements.title;
+    const title = input.value.trim();
+    if (!title || input.readOnly) return;
+    input.readOnly = true;
+    try {
+      const { goal } = await api("/api/goals", { method: "POST", body: JSON.stringify({ horizon: goalAdd.dataset.horizon, title }) });
+      state.goals.push(goal);
+      state.refocusMember = `h:${goalAdd.dataset.horizon}`;
+      renderTeam();
+    } catch (error) {
+      input.readOnly = false;
+      toast(error.message, true);
+    }
+    return;
+  }
   const add = event.target.closest(".focus-add");
   if (add) {
     event.preventDefault();

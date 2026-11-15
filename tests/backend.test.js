@@ -231,3 +231,18 @@ test('team focuses are scoped by week', async () => {
   assert.equal((await request('/api/team?week=2026-11-17', { headers: { cookie: a.cookie } })).status, 400);
   assert.equal((await request('/api/team/focus', { method: 'POST', headers: a.headers, body: JSON.stringify({ week: '2026-11-17', member: 'geoff', title: 'x' }) })).status, 400);
 });
+
+test('goals seed once, add per horizon, toggle, archive, owner scoped', async () => {
+  const a = await visitor();
+  const b = await visitor();
+  const first = await (await request('/api/goals', { headers: { cookie: a.cookie } })).json();
+  assert.deepEqual([...new Set(first.goals.map(g => g.horizon))].sort(), ['month', 'quarter', 'year']);
+  const add = await request('/api/goals', { method: 'POST', headers: a.headers, body: JSON.stringify({ horizon: 'quarter', title: 'Raise fund II' }) });
+  assert.equal(add.status, 201);
+  const { goal } = await add.json();
+  assert.equal((await request('/api/goals', { method: 'POST', headers: a.headers, body: JSON.stringify({ horizon: 'decade', title: 'x' }) })).status, 400);
+  assert.equal((await request(`/api/goals/${goal.id}`, { method: 'PATCH', headers: b.headers, body: JSON.stringify({ expectedVersion: 1, changes: { done: true } }) })).status, 404);
+  assert.equal((await request(`/api/goals/${goal.id}`, { method: 'PATCH', headers: a.headers, body: JSON.stringify({ expectedVersion: 1, changes: { archived: true } }) })).status, 200);
+  const reloaded = await (await request('/api/goals', { headers: { cookie: a.cookie } })).json();
+  assert.equal(reloaded.goals.length, first.goals.length);
+});
