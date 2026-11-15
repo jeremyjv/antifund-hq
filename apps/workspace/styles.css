@@ -2255,3 +2255,41 @@ dialog::backdrop {
 .goals-board .goal-col { min-height: 220px; }
 
 .sourcing-research { margin-top: 40px; }
+
+/* Readable labels on Home / Goals boards: sans, larger, no tracking */
+.team-board-head .eyebrow,
+.kpi-head .eyebrow {
+  font: 600 14px/1.3 Plex, Arial, sans-serif;
+  text-transform: none;
+  letter-spacing: 0;
+  color: var(--ink);
+}
+.team-week { font-size: 14px; }
+.team-board-head .pill,
+.kpi-head .pill {
+  font: 500 12px/1.3 Plex, Arial, sans-serif;
+  padding: 4px 9px;
+}
+.team-col header strong { font-size: 15px; font-weight: 600; }
+.team-col header span {
+  font: 13px Plex, Arial, sans-serif;
+  color: var(--muted);
+}
+.team-role {
+  font: 13px/1.3 Plex, Arial, sans-serif;
+  text-transform: none;
+  letter-spacing: 0;
+  margin: 2px 0 12px;
+}
+.focus-list label { font-size: 14px; }
+.focus-add input { font-size: 13px; }
+.kpi-card .eyebrow {
+  font: 600 13px/1.3 Plex, Arial, sans-serif;
+  text-transform: none;
+  letter-spacing: 0;
+  color: var(--ink);
+}
+.kpi-delta { font: 500 12px Plex, Arial, sans-serif; }
+.kpi-unit { font-size: 13px; }
+.kpi-note { font-size: 12px; }
+.rail-item { font: 500 11px/1.2 Plex, Arial, sans-serif; letter-spacing: 0; }
