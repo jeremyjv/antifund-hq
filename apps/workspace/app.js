@@ -1,5 +1,6 @@
 import { renderMarketOverview } from './market-overview.js';
 import { renderFirmPage } from "./firm-views.js";
+import { renderKpis } from "./kpis.js";
 import { firmWorkflowDraft } from "../../packages/core/firm-workflows.js";
 const views = ["overview", "sourcing", "agents", "stats", "diligence", "operations", "companies", "research", "workspace", "about"];
 import { dashboardSnapshot } from "../../packages/core/dashboard.js";
@@ -231,7 +232,7 @@ function teamHome() {
       ? `<div class="loading-line"></div>`
       : `<div class="team-columns">${state.team.members.map(teamColumn).join("")}</div>`;
   return `<section class="home-greeting"><h1>${greeting(now)}</h1><span>${esc(now.toLocaleDateString(undefined, { weekday: "long", month: "long", day: "numeric" }))}</span></section>
-  <section class="team-board" aria-label="This week's team focuses"><div class="team-board-head"><span class="eyebrow">This week</span><span class="team-week">${esc(weekRange(now))}</span><span class="pill" title="Illustrative focuses until team members sign in. Your edits are saved to this browser's private workspace.">Sample focuses</span></div>${board}</section>`;
+  <section class="team-board" aria-label="This week's team focuses"><div class="team-board-head"><span class="eyebrow">This week</span><span class="team-week">${esc(weekRange(now))}</span><span class="pill" title="Illustrative focuses until team members sign in. Your edits are saved to this browser's private workspace.">Sample focuses</span></div>${board}</section>${renderKpis(esc)}`;
 }
 function overview() {
   const r = state.research;
