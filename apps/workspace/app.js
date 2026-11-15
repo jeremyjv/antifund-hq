@@ -65,6 +65,9 @@ const state = {
   query: "",
   workspaceTab: "all",
   loading: true,
+  team: null,
+  teamError: null,
+  refocusMember: null,
 };
 const github = "https://github.com/jeremyjv/antifund-hq";
 const app = $("#app");
@@ -169,7 +172,7 @@ function navItem(id, label, iconName, count = "") {
 }
 function shell() {
   const labels = {
-    overview: "Dashboard",
+    overview: "Home",
     sourcing: "Sourcing",
     agents: "Agents",
     stats: "Market stats",
@@ -181,7 +184,7 @@ function shell() {
     about: "Sources & agent access",
   };
   document.title = `Anti Fund HQ — ${labels[state.view]}`;
-  app.innerHTML = `<aside class="sidebar" aria-label="Primary navigation"><button class="icon-button mobile-menu" data-action="close-menu" aria-label="Close navigation">${icon("close")}</button><a class="brand" href="#overview" aria-label="Anti Fund HQ overview"><img class="brand-logo" src="/assets/antifund-logo.png" alt=""><div><div class="brand-name">Anti Fund</div><div class="brand-sub">RESEARCH HQ</div></div></a><div class="nav-label">Firm workspace</div><nav aria-label="Firm workspace">${navItem("overview", "Dashboard", "grid")}${navItem("sourcing", "Sourcing", "search")}${navItem("agents", "Agents", "spark")}${navItem("stats", "Market stats", "companies")}${navItem("diligence", "Diligence & relationships", "connect")}${navItem("operations", "Operations", "clock")}</nav><div class="nav-label">Research library</div><nav aria-label="Research library">${navItem("companies", "Companies", "companies", state.research?.companies.length ?? "")}${navItem("research", "Research briefs", "research")}</nav><div class="sidebar-bottom">${navItem("workspace", "Saved work", "folder", state.workspace.length || "")}${navItem("about", "Sources & agent access", "connect")}<div class="sidebar-note"><strong>Prepared for Anti Fund.</strong><br>Research demo by Jeremy.<br>Built from public sources.</div></div></aside><div class="app-main"><header class="topbar"><button class="icon-button mobile-menu" data-action="open-menu" aria-label="Open navigation">${icon("menu")}</button><div class="breadcrumb"><span>Anti Fund HQ</span><span>/</span><span>${labels[state.view]}</span></div><div class="topbar-actions"><span class="prototype"><span class="dot"></span> Independent prototype</span>${external(github, "View repository")}</div></header><main class="content" id="main" tabindex="-1">${page()}</main></div>`;
+  app.innerHTML = `<aside class="sidebar" aria-label="Primary navigation"><button class="icon-button mobile-menu" data-action="close-menu" aria-label="Close navigation">${icon("close")}</button><a class="brand" href="#overview" aria-label="Anti Fund HQ overview"><img class="brand-logo" src="/assets/antifund-logo.png" alt=""><div><div class="brand-name">Anti Fund</div><div class="brand-sub">RESEARCH HQ</div></div></a><div class="nav-label">Firm workspace</div><nav aria-label="Firm workspace">${navItem("overview", "Home", "grid")}${navItem("sourcing", "Sourcing", "search")}${navItem("agents", "Agents", "spark")}${navItem("stats", "Market stats", "companies")}${navItem("diligence", "Diligence & relationships", "connect")}${navItem("operations", "Operations", "clock")}</nav><div class="nav-label">Research library</div><nav aria-label="Research library">${navItem("companies", "Companies", "companies", state.research?.companies.length ?? "")}${navItem("research", "Research briefs", "research")}</nav><div class="sidebar-bottom">${navItem("workspace", "Saved work", "folder", state.workspace.length || "")}${navItem("about", "Sources & agent access", "connect")}<div class="sidebar-note"><strong>Prepared for Anti Fund.</strong><br>Research demo by Jeremy.<br>Built from public sources.</div></div></aside><div class="app-main"><header class="topbar"><button class="icon-button mobile-menu" data-action="open-menu" aria-label="Open navigation">${icon("menu")}</button><div class="breadcrumb"><span>Anti Fund HQ</span><span>/</span><span>${labels[state.view]}</span></div><div class="topbar-actions"><span class="prototype"><span class="dot"></span> Independent prototype</span>${external(github, "View repository")}</div></header><main class="content" id="main" tabindex="-1">${page()}</main></div>`;
 }
 function page() {
   if (state.loading)
@@ -201,13 +204,42 @@ function page() {
     )() + footer()
   );
 }
+function greeting(now = new Date()) {
+  const h = now.getHours();
+  return h < 12 ? "Good morning" : h < 17 ? "Good afternoon" : "Good evening";
+}
+function weekRange(now = new Date()) {
+  const start = new Date(now);
+  start.setDate(now.getDate() - ((now.getDay() + 6) % 7));
+  const end = new Date(start);
+  end.setDate(start.getDate() + 6);
+  const f = (d) => d.toLocaleDateString(undefined, { month: "short", day: "numeric" });
+  return `${f(start)} – ${f(end)}`;
+}
+function teamColumn(m) {
+  const items = state.team.focuses.filter((f) => f.member === m.id);
+  const done = items.filter((f) => f.done).length;
+  return `<article class="team-col" aria-label="${esc(m.name)}'s focuses"><header><strong>${esc(m.name)}</strong><span>${done} of ${items.length}</span></header><span class="team-role">${esc(m.role)}</span>
+  <ul class="focus-list">${items.map((f) => `<li class="${f.done ? "done" : ""}"><label><input type="checkbox" data-focus-toggle="${esc(f.id)}" ${f.done ? "checked" : ""}><span>${esc(f.title)}</span></label><button type="button" class="focus-remove" data-action="focus-remove" data-id="${esc(f.id)}" aria-label="Remove focus: ${esc(f.title)}">${icon("close")}</button></li>`).join("")}</ul>
+  <form class="focus-add" data-member="${esc(m.id)}"><input name="title" maxlength="200" autocomplete="off" placeholder="Add a focus for ${esc(m.name)}…" aria-label="Add a focus for ${esc(m.name)}"></form></article>`;
+}
+function teamHome() {
+  const now = new Date();
+  const board = state.teamError
+    ? `<div class="team-board-error"><p>Team focuses could not load. ${esc(state.teamError)}</p>${btn("retry-team", "Try again", "small")}</div>`
+    : !state.team
+      ? `<div class="loading-line"></div>`
+      : `<div class="team-columns">${state.team.members.map(teamColumn).join("")}</div>`;
+  return `<section class="home-greeting"><h1>${greeting(now)}</h1><span>${esc(now.toLocaleDateString(undefined, { weekday: "long", month: "long", day: "numeric" }))}</span></section>
+  <section class="team-board" aria-label="This week's team focuses"><div class="team-board-head"><span class="eyebrow">This week</span><span class="team-week">${esc(weekRange(now))}</span><span class="pill" title="Illustrative focuses until team members sign in. Your edits are saved to this browser's private workspace.">Sample focuses</span></div>${board}</section>`;
+}
 function overview() {
   const r = state.research;
   const candidateIds = new Set(r.companies.filter(c=>c.relationship === "research").map(c=>c.id));
   const d = dashboardSnapshot({...r,signals:r.signals.filter(s=>candidateIds.has(s.companyId))});
   const filters = [["recent", "Past 30 days", d.recent.length], ["dated", "All dated updates", d.dated.length], ["undated", "Undated evidence", d.undated.length]];
   const rows = d[state.dashboardFilter] || d.recent;
-  return `<div class="decision-dashboard">${heading("Anti Fund / Decision dashboard", "What changed. What matters.", "Sourcing candidates beyond the published portfolio, with evidence and questions to follow up.")}
+  return `${teamHome()}<div class="decision-dashboard">${heading("Anti Fund / Decision dashboard", "What changed. What matters.", "Sourcing candidates beyond the published portfolio, with evidence and questions to follow up.")}
   <div class="snapshot-status"><span>${icon("clock")} Snapshot checked ${esc(date(r.checkedAt))}</span><span>Curated public research · Not a live feed</span></div>
   <section class="decision-metrics" aria-label="Research snapshot summary">
     <button data-action="dashboard-filter" data-id="recent"><strong>${d.recent.length}</strong><span>Dated updates in 30 days<small>Window ending ${esc(date(r.checkedAt))}</small></span>${icon("arrow")}</button>
@@ -493,6 +525,31 @@ async function loadWorkspace() {
   state.workspaceError = null;
   return result;
 }
+async function loadTeam() {
+  try {
+    const result = await api("/api/team");
+    state.team = { members: result.members, focuses: result.focuses };
+    state.csrf = result.csrfToken;
+    state.teamError = null;
+  } catch (error) {
+    state.teamError = error.message;
+  }
+}
+function renderTeam() {
+  if (state.view !== "overview") return;
+  const active = document.activeElement?.closest?.(".focus-add")?.dataset.member;
+  shell();
+  const member = state.refocusMember || active;
+  state.refocusMember = null;
+  if (member) $(`.focus-add[data-member="${member}"] input`)?.focus({ preventScroll: true });
+}
+async function patchFocus(id, changes) {
+  const f = state.team.focuses.find((x) => x.id === id);
+  if (!f) return;
+  const { focus } = await api(`/api/team/focus/${id}`, { method: "PATCH", body: JSON.stringify({ expectedVersion: f.version, changes }) });
+  if (changes.archived) state.team.focuses = state.team.focuses.filter((x) => x.id !== id);
+  else Object.assign(f, focus);
+}
 async function shortlist(id, button) {
   const c = company(id);
   if (!c) return;
@@ -635,6 +692,7 @@ async function init() {
     api("/api/research"),
     loadWorkspace(),
   ]);
+  await loadTeam();
   if (results[0].status === "fulfilled") state.research = results[0].value;
   else state.researchError = results[0].reason.message;
   if (results[1].status === "rejected")
@@ -674,6 +732,18 @@ document.addEventListener("click", async (event) => {
       case "retry":
         await init();
         break;
+      case "retry-team":
+        await loadTeam();
+        renderTeam();
+        break;
+      case "focus-remove": {
+        button.disabled = true;
+        const f = state.team.focuses.find((x) => x.id === id);
+        await patchFocus(id, { archived: true });
+        renderTeam();
+        toast(`Removed "${f?.title || "focus"}".`);
+        break;
+      }
       case "retry-workspace":
         button.disabled = true;
         try {
@@ -835,7 +905,20 @@ document.addEventListener("input", (event) => {
   }
   if (event.target.closest("#record-form")) editorDirty = true;
 });
-document.addEventListener("change", (event) => {
+document.addEventListener("change", async (event) => {
+  const toggle = event.target.dataset?.focusToggle;
+  if (toggle) {
+    event.target.disabled = true;
+    try {
+      await patchFocus(toggle, { done: event.target.checked });
+    } catch (error) {
+      toast(error.message, true);
+      if (error.status === 409) await loadTeam();
+    }
+    renderTeam();
+    $(`[data-focus-toggle="${toggle}"]`)?.focus({ preventScroll: true });
+    return;
+  }
   if (event.target.id === "firm-company") {
     state.firmCompany = event.target.value;
     shell();
@@ -847,7 +930,25 @@ document.addEventListener("change", (event) => {
   }
   if (event.target.closest("#record-form")) editorDirty = true;
 });
-document.addEventListener("submit", (event) => {
+document.addEventListener("submit", async (event) => {
+  const add = event.target.closest(".focus-add");
+  if (add) {
+    event.preventDefault();
+    const input = add.elements.title;
+    const title = input.value.trim();
+    if (!title || input.readOnly) return;
+    input.readOnly = true;
+    try {
+      const { focus } = await api("/api/team/focus", { method: "POST", body: JSON.stringify({ member: add.dataset.member, title }) });
+      state.team.focuses.push(focus);
+      state.refocusMember = add.dataset.member;
+      renderTeam();
+    } catch (error) {
+      input.readOnly = false;
+      toast(error.message, true);
+    }
+    return;
+  }
   if (event.target.id === "record-form") {
     event.preventDefault();
     saveEditor(event.target);

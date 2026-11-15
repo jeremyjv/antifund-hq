@@ -1,4 +1,5 @@
-import { ApiError, parseBody, recordCreate, recordUpdate } from '../../packages/core/schema.js';
+import { ApiError, parseBody, recordCreate, recordUpdate, focusCreate, focusUpdate } from '../../packages/core/schema.js';
+import { TEAM, listFocuses, createFocus, updateFocus } from '../../packages/core/team.js';
 import { catalog, listRecords, createRecord, updateRecord, history } from '../../packages/core/store.js';
 import { buildContext } from '../../packages/core/context.js';
 import { session, verifyWrite } from './session.js';
@@ -26,6 +27,22 @@ async function route(request, env) {
   }
   if (path === '/api/research' && request.method === 'GET') return json(await catalog(env.DB));
   if (path === '/api/context' && request.method === 'GET') return json(buildContext(await catalog(env.DB), { companyId: url.searchParams.get('companyId') || '', query: url.searchParams.get('query') || '' }));
+  if (path === '/api/team' && request.method === 'GET') {
+    const auth = await session(request, env.DB, true);
+    return json({ members: TEAM, focuses: await listFocuses(env.DB, auth.row.id), csrfToken: auth.row.csrf_token }, 200, auth.cookie ? { 'Set-Cookie': auth.cookie } : {});
+  }
+  if (path === '/api/team/focus' && request.method === 'POST') {
+    const auth = await session(request, env.DB);
+    verifyWrite(request, auth.row);
+    return json({ focus: await createFocus(env.DB, auth.row.id, await parseBody(request, focusCreate)) }, 201);
+  }
+  const focusRoute = path.match(/^\/api\/team\/focus\/([a-f0-9-]{36})$/);
+  if (focusRoute) {
+    if (request.method !== 'PATCH') throw new ApiError(405, 'Method not allowed');
+    const auth = await session(request, env.DB);
+    verifyWrite(request, auth.row);
+    return json({ focus: await updateFocus(env.DB, auth.row.id, focusRoute[1], await parseBody(request, focusUpdate)) });
+  }
   if (path === '/api/workspace' && request.method === 'GET') {
     const auth = await session(request, env.DB, true);
     return json({ records: await listRecords(env.DB, auth.row.id, url.searchParams.get('archived') === 'true'), csrfToken: auth.row.csrf_token, sessionExpiresAt: auth.row.expires_at }, 200, auth.cookie ? { 'Set-Cookie': auth.cookie } : {});

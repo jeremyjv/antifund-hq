@@ -46,3 +46,18 @@ export async function parseBody(request, schema) {
   if (!result.success) throw new ApiError(400, 'Validation failed', result.error.issues.map(({ path, message }) => ({ path, message })));
   return result.data;
 }
+
+const TEAM_MEMBERS = ['geoff', 'jake', 'logan', 'steve', 'laura', 'jeremy'];
+export const focusCreate = z.object({
+  member: z.enum(TEAM_MEMBERS),
+  title: z.string().trim().min(1).max(200),
+}).strict();
+
+export const focusUpdate = z.object({
+  expectedVersion: z.number().int().positive(),
+  changes: z.object({
+    title: z.string().trim().min(1).max(200).optional(),
+    done: z.boolean().optional(),
+    archived: z.boolean().optional(),
+  }).strict().refine(value => Object.keys(value).length > 0, 'Supply at least one change'),
+}).strict();

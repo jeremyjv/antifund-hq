@@ -196,3 +196,25 @@ test('active session quota is atomic and preserves public research and existing 
     await db.prepare("DELETE FROM sessions WHERE id LIKE 'quota-%'").run();
   }
 });
+
+test('team focuses seed once, persist, toggle, archive, and stay owner scoped', async () => {
+  const a = await visitor();
+  const b = await visitor();
+  const first = await (await request('/api/team', { headers: { cookie: a.cookie } })).json();
+  assert.equal(first.members.length, 6);
+  assert.ok(first.focuses.length > 0);
+  const add = await request('/api/team/focus', { method: 'POST', headers: a.headers, body: JSON.stringify({ member: 'steve', title: 'Follow up with founder' }) });
+  assert.equal(add.status, 201);
+  const { focus } = await add.json();
+  assert.equal((await request('/api/team/focus', { method: 'POST', headers: a.headers, body: JSON.stringify({ member: 'nobody', title: 'x' }) })).status, 400);
+  assert.equal((await request(`/api/team/focus/${focus.id}`, { method: 'PATCH', headers: b.headers, body: JSON.stringify({ expectedVersion: 1, changes: { done: true } }) })).status, 404);
+  const done = await (await request(`/api/team/focus/${focus.id}`, { method: 'PATCH', headers: a.headers, body: JSON.stringify({ expectedVersion: 1, changes: { done: true } }) })).json();
+  assert.equal(done.focus.done, true);
+  assert.equal((await request(`/api/team/focus/${focus.id}`, { method: 'PATCH', headers: a.headers, body: JSON.stringify({ expectedVersion: 1, changes: { done: false } }) })).status, 409);
+  await request(`/api/team/focus/${focus.id}`, { method: 'PATCH', headers: a.headers, body: JSON.stringify({ expectedVersion: 2, changes: { archived: true } }) });
+  const reloaded = await (await request('/api/team', { headers: { cookie: a.cookie } })).json();
+  assert.equal(reloaded.focuses.length, first.focuses.length);
+  assert.ok(!reloaded.focuses.some(f => f.id === focus.id));
+  const other = await (await request('/api/team', { headers: { cookie: b.cookie } })).json();
+  assert.ok(!other.focuses.some(f => f.title === 'Follow up with founder'));
+});
