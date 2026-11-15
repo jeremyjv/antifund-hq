@@ -24,9 +24,11 @@ export const fundKpis = [
 ];
 
 export function sparkline(series, good) {
-  const w = 120, h = 32, min = Math.min(...series), max = Math.max(...series);
-  const pts = series.map((v, i) => `${(i / (series.length - 1)) * w},${h - 3 - ((v - min) / (max - min || 1)) * (h - 6)}`).join(' ');
-  return `<svg class="kpi-spark ${good ? 'good' : 'bad'}" viewBox="0 0 ${w} ${h}" preserveAspectRatio="none" aria-hidden="true"><polyline points="${pts}" fill="none" stroke="currentColor" stroke-width="1.5" vector-effect="non-scaling-stroke" stroke-linejoin="round" stroke-linecap="round"/></svg>`;
+  const w = 120, h = 40, min = Math.min(...series), max = Math.max(...series);
+  const xy = series.map((v, i) => [(i / (series.length - 1)) * w, h - 4 - ((v - min) / (max - min || 1)) * (h - 10)]);
+  const line = xy.map(([x, y]) => `${x},${y}`).join(' ');
+  const [lx, ly] = xy[xy.length - 1];
+  return `<svg class="kpi-spark ${good ? 'good' : 'bad'}" viewBox="0 0 ${w} ${h}" preserveAspectRatio="none" aria-hidden="true"><polygon points="0,${h} ${line} ${w},${h}" fill="currentColor" fill-opacity="0.18" stroke="none"/><polyline points="${line}" fill="none" stroke="currentColor" stroke-width="1.5" vector-effect="non-scaling-stroke" stroke-linejoin="round" stroke-linecap="round"/><line x1="${lx}" y1="${ly}" x2="${lx}" y2="${ly}" stroke="currentColor" stroke-width="6" stroke-linecap="round" vector-effect="non-scaling-stroke"/></svg>`;
 }
 
 export function renderKpis(esc) {

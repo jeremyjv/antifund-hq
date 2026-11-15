@@ -2194,3 +2194,4 @@ dialog::backdrop {
   cursor: pointer;
 }
 .team-col { min-height: 150px; }
+.kpi-spark { height: 44px; margin: 12px -4px 8px 0; width: calc(100% + 4px); overflow: visible; }
