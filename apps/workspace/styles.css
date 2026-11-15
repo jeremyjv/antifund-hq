@@ -2252,3 +2252,4 @@ dialog::backdrop {
 .setup-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0 20px; }
 .setup-card pre { white-space: pre-wrap; word-break: break-all; margin: 10px 0 12px; }
 @media (max-width: 900px) { .planned-grid, .setup-grid { grid-template-columns: 1fr; } }
+.goals-board .goal-col { min-height: 220px; }

@@ -35,6 +35,7 @@ const icons = {
   "chevron-left": '<path d="m15 6-6 6 6 6"/>',
   "chevron-right": '<path d="m9 6 6 6-6 6"/>',
   home: '<path d="M3 11 12 4l9 7"/><path d="M5 10v10h5v-6h4v6h5V10"/>',
+  target: '<circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1"/>',
   feed: '<path d="M4 5h16M4 12h16M4 19h10"/>',
   log: '<rect x="5" y="3" width="14" height="18" rx="2"/><path d="M9 8h6M9 12h6M9 16h3"/>',
   people: '<circle cx="9" cy="8" r="3.5"/><path d="M2.5 20a6.5 6.5 0 0 1 13 0"/><circle cx="17" cy="9" r="2.5"/><path d="M16 14.5a5 5 0 0 1 5.5 5"/>',
@@ -207,6 +208,7 @@ function page() {
         workspace: workspace,
         about: about,
         "agent-setup": agentSetup,
+        goals: () => `${heading("HQ / Goals", "Where we are going.", "The direction for the next month, the next 3 months, and the year. Weekly focuses on Home should ladder up to these.")}${goalsBoard()}`,
         ...Object.fromEntries(Object.keys(plannedPages).map((view) => [view, () => plannedPage(plannedPages[view])])),
       }[state.view] || overview
     )() + footer()
@@ -253,7 +255,7 @@ function teamHome() {
     : !state.team
       ? `<div class="loading-line"></div>`
       : `<div class="team-columns">${state.team.members.map(teamColumn).join("")}</div>`;
-  return `<section class="home-greeting"><h1>${greeting(now)}</h1><span>${esc(now.toLocaleDateString(undefined, { weekday: "long", month: "long", day: "numeric" }))}</span></section>${goalsBoard()}
+  return `<section class="home-greeting"><h1>${greeting(now)}</h1><span>${esc(now.toLocaleDateString(undefined, { weekday: "long", month: "long", day: "numeric" }))}</span></section>
   <section class="team-board" aria-label="Team focuses by week"><div class="team-board-head"><span class="eyebrow">${esc(weekLabel(state.week))}</span><span class="team-week">${esc(weekRange(state.week))}</span>${state.week !== weekKey(mondayOf()) ? `<button type="button" class="week-today" data-action="week-today">Back to this week</button>` : ""}<span class="pill" title="Illustrative focuses until team members sign in. Your edits are saved to this browser's private workspace.">Sample focuses</span><div class="week-nav"><button type="button" class="icon-button" data-action="week-prev" aria-label="Previous week">${icon("chevron-left")}</button><button type="button" class="icon-button" data-action="week-next" aria-label="Next week">${icon("chevron-right")}</button></div></div>${board}</section>${renderKpis(esc)}`;
 }
 function plannedPage(p) {
@@ -589,7 +591,7 @@ async function loadTeam() {
   }
 }
 function renderTeam() {
-  if (state.view !== "overview") return;
+  if (!["overview", "goals"].includes(state.view)) return;
   const activeForm = document.activeElement?.closest?.(".focus-add");
   const active = activeForm?.dataset.member || (activeForm?.dataset.horizon && `h:${activeForm.dataset.horizon}`);
   shell();
