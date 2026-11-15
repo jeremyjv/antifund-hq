@@ -48,7 +48,9 @@ export async function parseBody(request, schema) {
 }
 
 const TEAM_MEMBERS = ['geoff', 'jake', 'logan', 'steve', 'laura', 'jeremy'];
+export const weekId = z.string().regex(/^\d{4}-\d{2}-\d{2}$/).refine(v => !Number.isNaN(Date.parse(`${v}T00:00:00Z`)) && new Date(`${v}T00:00:00Z`).getUTCDay() === 1, 'Week must start on a Monday');
 export const focusCreate = z.object({
+  week: weekId,
   member: z.enum(TEAM_MEMBERS),
   title: z.string().trim().min(1).max(200),
 }).strict();

@@ -25,27 +25,33 @@ const SAMPLE = [
   ['jeremy', 'Portfolio stats source of truth', 0],
 ];
 
-const mapFocus = row => ({ id: row.id, member: row.member, title: row.title, done: !!row.done, version: row.version, createdAt: row.created_at, updatedAt: row.updated_at });
+const mapFocus = row => ({ id: row.id, week: row.week, member: row.member, title: row.title, done: !!row.done, version: row.version, createdAt: row.created_at, updatedAt: row.updated_at });
 
-export async function listFocuses(db, ownerId) {
+export function mondayOf(date = new Date()) {
+  const d = new Date(Date.UTC(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate()));
+  d.setUTCDate(d.getUTCDate() - ((d.getUTCDay() + 6) % 7));
+  return d.toISOString().slice(0, 10);
+}
+
+export async function listFocuses(db, ownerId, week = mondayOf()) {
   const any = await db.prepare('SELECT 1 FROM team_focuses WHERE owner_id=? LIMIT 1').bind(ownerId).first();
   if (!any) {
     const base = Date.now();
     await db.batch(SAMPLE.map(([member, title, done], i) => {
       const at = new Date(base + i).toISOString();
-      return db.prepare('INSERT INTO team_focuses(id,owner_id,member,title,done,created_at,updated_at) VALUES(?,?,?,?,?,?,?)').bind(crypto.randomUUID(), ownerId, member, title, done, at, at);
+      return db.prepare('INSERT INTO team_focuses(id,owner_id,week,member,title,done,created_at,updated_at) VALUES(?,?,?,?,?,?,?,?)').bind(crypto.randomUUID(), ownerId, week, member, title, done, at, at);
     }));
   }
-  const { results } = await db.prepare('SELECT * FROM team_focuses WHERE owner_id=? AND archived=0 ORDER BY created_at ASC,id ASC LIMIT 300').bind(ownerId).all();
+  const { results } = await db.prepare('SELECT * FROM team_focuses WHERE owner_id=? AND week=? AND archived=0 ORDER BY created_at ASC,id ASC LIMIT 300').bind(ownerId, week).all();
   return results.map(mapFocus);
 }
 
 export async function createFocus(db, ownerId, input) {
   const now = new Date().toISOString();
-  const row = await db.prepare(`INSERT INTO team_focuses(id,owner_id,member,title,created_at,updated_at)
-    SELECT ?,?,?,?,?,? WHERE (SELECT COUNT(*) FROM team_focuses WHERE owner_id=?) < 300 RETURNING *`)
-    .bind(crypto.randomUUID(), ownerId, input.member, input.title, now, now, ownerId).first();
-  if (!row) throw new ApiError(429, 'This demo board has reached its 300-focus limit');
+  const row = await db.prepare(`INSERT INTO team_focuses(id,owner_id,week,member,title,created_at,updated_at)
+    SELECT ?,?,?,?,?,?,? WHERE (SELECT COUNT(*) FROM team_focuses WHERE owner_id=?) < 1000 RETURNING *`)
+    .bind(crypto.randomUUID(), ownerId, input.week, input.member, input.title, now, now, ownerId).first();
+  if (!row) throw new ApiError(429, 'This demo board has reached its 1,000-focus limit');
   return mapFocus(row);
 }
 

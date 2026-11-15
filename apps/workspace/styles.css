@@ -2167,3 +2167,30 @@ dialog::backdrop {
 @media (max-width: 600px) {
   .team-columns { grid-template-columns: 1fr; }
 }
+
+/* Week navigation */
+.team-board-head .pill { margin-left: auto; }
+.week-nav { display: flex; gap: 6px; }
+.week-nav .icon-button {
+  width: 28px;
+  height: 28px;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  background: var(--paper);
+  display: grid;
+  place-items: center;
+  color: var(--muted);
+  cursor: pointer;
+}
+.week-nav .icon-button:hover { color: var(--ink); background: var(--surface); }
+.week-nav svg { width: 14px; height: 14px; }
+.week-today {
+  border: 0;
+  background: none;
+  padding: 0;
+  font-size: 11px;
+  color: var(--red);
+  text-decoration: underline;
+  cursor: pointer;
+}
+.team-col { min-height: 150px; }

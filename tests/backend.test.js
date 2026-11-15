@@ -203,10 +203,10 @@ test('team focuses seed once, persist, toggle, archive, and stay owner scoped', 
   const first = await (await request('/api/team', { headers: { cookie: a.cookie } })).json();
   assert.equal(first.members.length, 6);
   assert.ok(first.focuses.length > 0);
-  const add = await request('/api/team/focus', { method: 'POST', headers: a.headers, body: JSON.stringify({ member: 'steve', title: 'Follow up with founder' }) });
+  const add = await request('/api/team/focus', { method: 'POST', headers: a.headers, body: JSON.stringify({ week: first.focuses[0].week, member: 'steve', title: 'Follow up with founder' }) });
   assert.equal(add.status, 201);
   const { focus } = await add.json();
-  assert.equal((await request('/api/team/focus', { method: 'POST', headers: a.headers, body: JSON.stringify({ member: 'nobody', title: 'x' }) })).status, 400);
+  assert.equal((await request('/api/team/focus', { method: 'POST', headers: a.headers, body: JSON.stringify({ week: first.focuses[0].week, member: 'nobody', title: 'x' }) })).status, 400);
   assert.equal((await request(`/api/team/focus/${focus.id}`, { method: 'PATCH', headers: b.headers, body: JSON.stringify({ expectedVersion: 1, changes: { done: true } }) })).status, 404);
   const done = await (await request(`/api/team/focus/${focus.id}`, { method: 'PATCH', headers: a.headers, body: JSON.stringify({ expectedVersion: 1, changes: { done: true } }) })).json();
   assert.equal(done.focus.done, true);
@@ -217,4 +217,17 @@ test('team focuses seed once, persist, toggle, archive, and stay owner scoped', 
   assert.ok(!reloaded.focuses.some(f => f.id === focus.id));
   const other = await (await request('/api/team', { headers: { cookie: b.cookie } })).json();
   assert.ok(!other.focuses.some(f => f.title === 'Follow up with founder'));
+});
+
+test('team focuses are scoped by week', async () => {
+  const a = await visitor();
+  const current = await (await request('/api/team?week=2026-11-09', { headers: { cookie: a.cookie } })).json();
+  assert.ok(current.focuses.length > 0);
+  const next = await (await request('/api/team?week=2026-11-16', { headers: { cookie: a.cookie } })).json();
+  assert.equal(next.focuses.length, 0);
+  assert.equal((await request('/api/team/focus', { method: 'POST', headers: a.headers, body: JSON.stringify({ week: '2026-11-16', member: 'geoff', title: 'Next week item' }) })).status, 201);
+  const again = await (await request('/api/team?week=2026-11-16', { headers: { cookie: a.cookie } })).json();
+  assert.deepEqual(again.focuses.map(f => f.title), ['Next week item']);
+  assert.equal((await request('/api/team?week=2026-11-17', { headers: { cookie: a.cookie } })).status, 400);
+  assert.equal((await request('/api/team/focus', { method: 'POST', headers: a.headers, body: JSON.stringify({ week: '2026-11-17', member: 'geoff', title: 'x' }) })).status, 400);
 });

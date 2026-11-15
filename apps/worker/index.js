@@ -1,4 +1,4 @@
-import { ApiError, parseBody, recordCreate, recordUpdate, focusCreate, focusUpdate } from '../../packages/core/schema.js';
+import { ApiError, parseBody, recordCreate, recordUpdate, focusCreate, focusUpdate, weekId } from '../../packages/core/schema.js';
 import { TEAM, listFocuses, createFocus, updateFocus } from '../../packages/core/team.js';
 import { catalog, listRecords, createRecord, updateRecord, history } from '../../packages/core/store.js';
 import { buildContext } from '../../packages/core/context.js';
@@ -16,6 +16,12 @@ function secure(response) {
 }
 const json = (value, status = 200, headers = {}) => Response.json(value, { status, headers: { 'Cache-Control': 'no-store', ...headers } });
 
+function weekParam(value) {
+  const result = weekId.safeParse(value);
+  if (!result.success) throw new ApiError(400, 'Week must be a Monday date (YYYY-MM-DD)');
+  return result.data;
+}
+
 async function route(request, env) {
   const url = new URL(request.url);
   const path = url.pathname;
@@ -29,7 +35,7 @@ async function route(request, env) {
   if (path === '/api/context' && request.method === 'GET') return json(buildContext(await catalog(env.DB), { companyId: url.searchParams.get('companyId') || '', query: url.searchParams.get('query') || '' }));
   if (path === '/api/team' && request.method === 'GET') {
     const auth = await session(request, env.DB, true);
-    return json({ members: TEAM, focuses: await listFocuses(env.DB, auth.row.id), csrfToken: auth.row.csrf_token }, 200, auth.cookie ? { 'Set-Cookie': auth.cookie } : {});
+    return json({ members: TEAM, focuses: await listFocuses(env.DB, auth.row.id, url.searchParams.get('week') ? weekParam(url.searchParams.get('week')) : undefined), csrfToken: auth.row.csrf_token }, 200, auth.cookie ? { 'Set-Cookie': auth.cookie } : {});
   }
   if (path === '/api/team/focus' && request.method === 'POST') {
     const auth = await session(request, env.DB);

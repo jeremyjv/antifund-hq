@@ -32,6 +32,8 @@ const icons = {
     '<path d="m10 13 4-4M8 15l-1 1a3 3 0 0 1-4-4l4-4a3 3 0 0 1 4 0m2 5a3 3 0 0 0 4 0l4-4a3 3 0 0 0-4-4l-1 1"/>',
   arrow: '<path d="M4 12h15m-6-6 6 6-6 6"/>',
   external: '<path d="M14 3h7v7m0-7L10 14M10 4H4v16h16v-6"/>',
+  "chevron-left": '<path d="m15 6-6 6 6 6"/>',
+  "chevron-right": '<path d="m9 6 6 6-6 6"/>',
   plus: '<path d="M12 5v14M5 12h14"/>',
   search: '<circle cx="10.5" cy="10.5" r="6.5"/><path d="m16 16 5 5"/>',
   close: '<path d="m6 6 12 12M18 6 6 18"/>',
@@ -69,6 +71,7 @@ const state = {
   team: null,
   teamError: null,
   refocusMember: null,
+  week: null,
 };
 const github = "https://github.com/jeremyjv/antifund-hq";
 const app = $("#app");
@@ -209,9 +212,24 @@ function greeting(now = new Date()) {
   const h = now.getHours();
   return h < 12 ? "Good morning" : h < 17 ? "Good afternoon" : "Good evening";
 }
-function weekRange(now = new Date()) {
-  const start = new Date(now);
-  start.setDate(now.getDate() - ((now.getDay() + 6) % 7));
+function mondayOf(now = new Date()) {
+  const start = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+  start.setDate(start.getDate() - ((start.getDay() + 6) % 7));
+  return start;
+}
+const weekKey = (d) => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+const parseWeek = (key) => { const [y, m, d] = key.split("-").map(Number); return new Date(y, m - 1, d); };
+function shiftWeek(key, delta) {
+  const d = parseWeek(key);
+  d.setDate(d.getDate() + delta * 7);
+  return weekKey(d);
+}
+function weekLabel(key) {
+  const diff = Math.round((parseWeek(key) - mondayOf()) / 604800000);
+  return diff === 0 ? "This week" : diff === -1 ? "Last week" : diff === 1 ? "Next week" : diff < 0 ? `${-diff} weeks ago` : `In ${diff} weeks`;
+}
+function weekRange(key) {
+  const start = parseWeek(key);
   const end = new Date(start);
   end.setDate(start.getDate() + 6);
   const f = (d) => d.toLocaleDateString(undefined, { month: "short", day: "numeric" });
@@ -232,7 +250,7 @@ function teamHome() {
       ? `<div class="loading-line"></div>`
       : `<div class="team-columns">${state.team.members.map(teamColumn).join("")}</div>`;
   return `<section class="home-greeting"><h1>${greeting(now)}</h1><span>${esc(now.toLocaleDateString(undefined, { weekday: "long", month: "long", day: "numeric" }))}</span></section>
-  <section class="team-board" aria-label="This week's team focuses"><div class="team-board-head"><span class="eyebrow">This week</span><span class="team-week">${esc(weekRange(now))}</span><span class="pill" title="Illustrative focuses until team members sign in. Your edits are saved to this browser's private workspace.">Sample focuses</span></div>${board}</section>${renderKpis(esc)}`;
+  <section class="team-board" aria-label="Team focuses by week"><div class="team-board-head"><span class="eyebrow">${esc(weekLabel(state.week))}</span><span class="team-week">${esc(weekRange(state.week))}</span>${state.week !== weekKey(mondayOf()) ? `<button type="button" class="week-today" data-action="week-today">Back to this week</button>` : ""}<span class="pill" title="Illustrative focuses until team members sign in. Your edits are saved to this browser's private workspace.">Sample focuses</span><div class="week-nav"><button type="button" class="icon-button" data-action="week-prev" aria-label="Previous week">${icon("chevron-left")}</button><button type="button" class="icon-button" data-action="week-next" aria-label="Next week">${icon("chevron-right")}</button></div></div>${board}</section>${renderKpis(esc)}`;
 }
 function overview() {
   const r = state.research;
@@ -528,7 +546,10 @@ async function loadWorkspace() {
 }
 async function loadTeam() {
   try {
-    const result = await api("/api/team");
+    state.week ||= weekKey(mondayOf());
+    const week = state.week;
+    const result = await api(`/api/team?week=${week}`);
+    if (week !== state.week) return;
     state.team = { members: result.members, focuses: result.focuses };
     state.csrf = result.csrfToken;
     state.teamError = null;
@@ -732,6 +753,16 @@ document.addEventListener("click", async (event) => {
         break;
       case "retry":
         await init();
+        break;
+      case "week-prev":
+      case "week-next":
+      case "week-today":
+        state.week = action === "week-today" ? weekKey(mondayOf()) : shiftWeek(state.week, action === "week-prev" ? -1 : 1);
+        state.team = null;
+        renderTeam();
+        await loadTeam();
+        renderTeam();
+        if (action !== "week-today") $(`[data-action="${action}"]`)?.focus({ preventScroll: true });
         break;
       case "retry-team":
         await loadTeam();
@@ -940,7 +971,7 @@ document.addEventListener("submit", async (event) => {
     if (!title || input.readOnly) return;
     input.readOnly = true;
     try {
-      const { focus } = await api("/api/team/focus", { method: "POST", body: JSON.stringify({ member: add.dataset.member, title }) });
+      const { focus } = await api("/api/team/focus", { method: "POST", body: JSON.stringify({ week: state.week, member: add.dataset.member, title }) });
       state.team.focuses.push(focus);
       state.refocusMember = add.dataset.member;
       renderTeam();
