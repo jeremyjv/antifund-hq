@@ -64,8 +64,20 @@ export const focusUpdate = z.object({
   }).strict().refine(value => Object.keys(value).length > 0, 'Supply at least one change'),
 }).strict();
 
-export const goalCreate = z.object({
-  horizon: z.enum(['month', 'quarter', 'year']),
-  title: z.string().trim().min(1).max(200),
+const MEMBERS = ['geoff', 'jake', 'logan', 'steve', 'laura', 'jeremy'];
+export const member = z.enum(MEMBERS);
+const isoDate = z.string().regex(/^\d{4}-\d{2}-\d{2}$/).refine((v) => !Number.isNaN(Date.parse(`${v}T00:00:00Z`)), 'Invalid date');
+const title = z.string().trim().min(1).max(200);
+export const goalCreate = z.object({ title, member, targetDate: isoDate, actor: member }).strict();
+export const goalUpdate = z.object({
+  changes: z.object({ title: title.optional(), member: member.optional(), targetDate: isoDate.optional(), archived: z.boolean().optional() })
+    .strict().refine((v) => Object.keys(v).length > 0, 'Supply at least one change'),
 }).strict();
-export const goalUpdate = focusUpdate;
+export const taskCreate = z.object({ title, assignee: member.nullable().optional(), actor: member }).strict();
+export const taskAction = z.object({
+  action: z.enum(['claim', 'unclaim', 'complete', 'reopen', 'remove']),
+  actor: member,
+  note: z.string().max(500).optional(),
+}).strict();
+export const goalNote = z.object({ note: z.string().trim().min(1).max(500), actor: member }).strict();
+export const agentKeyCreate = z.object({ member }).strict();

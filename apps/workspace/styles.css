@@ -2344,3 +2344,47 @@ body, .app-main, .topbar { background: var(--canvas); }
 .focus-add textarea:focus { outline: none; border-bottom-color: var(--muted); }
 :root { --card: #faf6ee; }
 .setup-note { font-size: 13px; color: var(--muted); margin: -8px 0 18px; }
+
+/* Goals: cards with tasks, progress from tasks, activity log */
+.goal-new { display: grid; grid-template-columns: minmax(0, 1fr) 140px 160px auto; gap: 10px; margin-bottom: 20px; }
+.goal-new input, .goal-new select { border: 1px solid #ddd5c6; background: var(--card); border-radius: 8px; padding: 9px 12px; font-size: 14px; color: var(--ink); }
+.goal-list { display: grid; gap: 16px; margin-bottom: 40px; }
+.goal-card { background: var(--card); border: 1px solid #ddd5c6; border-radius: 12px; box-shadow: 0 1px 2px #1414140d, 0 4px 14px #1414140a; padding: 18px 20px; }
+.goal-top { display: grid; grid-template-columns: minmax(0, 1fr) 180px 24px; gap: 16px; align-items: start; }
+.goal-top h2 { font: 500 21px/1.3 Serif, Georgia, serif; margin: 0; }
+.goal-meta { display: flex; gap: 14px; font-size: 13px; color: var(--muted); margin: 6px 0 0; }
+.goal-meta .overdue { color: var(--red); font-weight: 500; }
+.goal-progress { display: grid; grid-template-columns: auto 1fr; align-items: baseline; gap: 2px 8px; }
+.goal-progress strong { font: 500 24px Serif, Georgia, serif; }
+.goal-progress > span:not(.goal-bar) { font-size: 12px; color: var(--muted); }
+.goal-bar { grid-column: 1 / -1; height: 6px; border-radius: 3px; background: #e6dfd2; overflow: hidden; margin-top: 4px; }
+.goal-bar span { display: block; height: 100%; background: var(--green); border-radius: 3px; }
+.goal-remove { opacity: 0.5; }
+.goal-card:hover .goal-remove { opacity: 1; }
+.goal-body { display: grid; grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr); gap: 28px; margin-top: 16px; padding-top: 14px; border-top: 1px solid #e6dfd2; }
+.goal-label { font-size: 12px; font-weight: 600; color: var(--muted); margin-bottom: 6px; }
+.task-list li { align-items: center; }
+.task-chip, .task-claim, .task-by { font: 500 11px Plex, Arial, sans-serif; border-radius: 99px; padding: 2px 9px; white-space: nowrap; }
+.task-chip { border: 1px solid #ddd5c6; background: var(--surface); color: var(--ink); cursor: pointer; }
+.task-chip.mine { background: #e8dcd2; border-color: #d9c3b6; color: var(--red); }
+.task-claim { border: 1px dashed #cfc5b4; background: none; color: var(--muted); cursor: pointer; }
+.task-claim:hover { color: var(--red); border-color: var(--red); }
+.task-by { color: var(--green); }
+.goal-log ul { list-style: none; margin: 0; padding: 0; }
+.goal-log li { display: grid; grid-template-columns: 14px minmax(0, 1fr) auto; gap: 8px; align-items: start; font-size: 12.5px; line-height: 1.45; padding: 5px 0; color: var(--muted); }
+.goal-log li strong { color: var(--ink); font-weight: 600; }
+.goal-log li svg { width: 13px; height: 13px; color: var(--green); margin-top: 2px; }
+.goal-log time { font-size: 11px; white-space: nowrap; }
+.log-dot { width: 6px; height: 6px; border-radius: 50%; background: #cfc5b4; margin: 6px 4px; }
+.key-panel .key-row { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; margin: 12px 0 8px; }
+.key-panel select { border: 1px solid #ddd5c6; background: var(--paper); border-radius: 8px; padding: 7px 10px; margin-left: 6px; }
+.key-fresh { color: var(--green); font-weight: 500; font-size: 13px; }
+.setup-step { margin: 8px 0 12px; }
+@media (max-width: 900px) {
+  .goal-new { grid-template-columns: 1fr 1fr; }
+  .goal-new input[name="title"] { grid-column: 1 / -1; }
+  .goal-top { grid-template-columns: minmax(0, 1fr) 24px; }
+  .goal-progress { grid-column: 1 / -1; grid-row: 2; }
+  .goal-body { grid-template-columns: 1fr; gap: 16px; }
+}
+.focus-list li.done .task-by { text-decoration: none; color: var(--green); }

@@ -1,6 +1,6 @@
-import { ApiError, parseBody, recordCreate, recordUpdate, focusCreate, focusUpdate, weekId, goalCreate, goalUpdate } from '../../packages/core/schema.js';
+import { ApiError, parseBody, recordCreate, recordUpdate, focusCreate, focusUpdate, weekId, goalCreate, goalUpdate, taskCreate, taskAction, goalNote, agentKeyCreate } from '../../packages/core/schema.js';
 import { TEAM, listFocuses, createFocus, updateFocus } from '../../packages/core/team.js';
-import { listGoals, createGoal, updateGoal } from '../../packages/core/goals.js';
+import { listGoals, createGoal, updateGoal, addTask, claimTask, unclaimTask, setTaskDone, archiveTask, addNote, createAgentKey, listAgentKeys } from '../../packages/core/goals.js';
 import { catalog, listRecords, createRecord, updateRecord, history } from '../../packages/core/store.js';
 import { buildContext } from '../../packages/core/context.js';
 import { session, verifyWrite } from './session.js';
@@ -26,7 +26,7 @@ function weekParam(value) {
 async function route(request, env) {
   const url = new URL(request.url);
   const path = url.pathname;
-  if (path === '/mcp') return handleMcp(request, env);
+  if (path === '/mcp' || /^\/mcp\/afhq_[a-f0-9]{48}$/.test(path)) return handleMcp(request, env);
   if (path === '/api/health' && request.method === 'GET') {
     await env.DB.prepare('SELECT 1 FROM sessions LIMIT 1').first();
     const seeded = await env.DB.prepare("SELECT version FROM public_catalog WHERE id='public-research'").first();
@@ -40,19 +40,52 @@ async function route(request, env) {
   }
   if (path === '/api/goals' && request.method === 'GET') {
     const auth = await session(request, env.DB, true);
-    return json({ goals: await listGoals(env.DB, auth.row.id), csrfToken: auth.row.csrf_token }, 200, auth.cookie ? { 'Set-Cookie': auth.cookie } : {});
+    return json({ goals: await listGoals(env.DB, auth.row.id), agentKeys: await listAgentKeys(env.DB, auth.row.id), csrfToken: auth.row.csrf_token }, 200, auth.cookie ? { 'Set-Cookie': auth.cookie } : {});
   }
   if (path === '/api/goals' && request.method === 'POST') {
     const auth = await session(request, env.DB);
     verifyWrite(request, auth.row);
-    return json({ goal: await createGoal(env.DB, auth.row.id, await parseBody(request, goalCreate)) }, 201);
+    const input = await parseBody(request, goalCreate);
+    return json({ id: await createGoal(env.DB, auth.row.id, input, input.actor) }, 201);
   }
-  const goalRoute = path.match(/^\/api\/goals\/([a-f0-9-]{36})$/);
+  const goalRoute = path.match(/^\/api\/goals\/([a-f0-9-]{36})(\/tasks|\/notes)?$/);
   if (goalRoute) {
-    if (request.method !== 'PATCH') throw new ApiError(405, 'Method not allowed');
     const auth = await session(request, env.DB);
     verifyWrite(request, auth.row);
-    return json({ goal: await updateGoal(env.DB, auth.row.id, goalRoute[1], await parseBody(request, goalUpdate)) });
+    if (!goalRoute[2] && request.method === 'PATCH') {
+      await updateGoal(env.DB, auth.row.id, goalRoute[1], (await parseBody(request, goalUpdate)).changes);
+      return json({ ok: true });
+    }
+    if (goalRoute[2] === '/tasks' && request.method === 'POST') {
+      const input = await parseBody(request, taskCreate);
+      return json(await addTask(env.DB, auth.row.id, goalRoute[1], input, input.actor), 201);
+    }
+    if (goalRoute[2] === '/notes' && request.method === 'POST') {
+      const input = await parseBody(request, goalNote);
+      await addNote(env.DB, auth.row.id, goalRoute[1], input.actor, input.note);
+      return json({ ok: true }, 201);
+    }
+    throw new ApiError(405, 'Method not allowed');
+  }
+  const taskRoute = path.match(/^\/api\/tasks\/([a-f0-9-]{36})$/);
+  if (taskRoute) {
+    if (request.method !== 'POST') throw new ApiError(405, 'Method not allowed');
+    const auth = await session(request, env.DB);
+    verifyWrite(request, auth.row);
+    const { action, actor, note } = await parseBody(request, taskAction);
+    const id = taskRoute[1], owner = auth.row.id;
+    const task = action === 'claim' ? await claimTask(env.DB, owner, id, actor)
+      : action === 'unclaim' ? await unclaimTask(env.DB, owner, id)
+      : action === 'complete' ? await setTaskDone(env.DB, owner, id, true, actor, 'web', note)
+      : action === 'reopen' ? await setTaskDone(env.DB, owner, id, false, actor, 'web')
+      : (await archiveTask(env.DB, owner, id), null);
+    return json({ task });
+  }
+  if (path === '/api/agent-keys' && request.method === 'POST') {
+    const auth = await session(request, env.DB);
+    verifyWrite(request, auth.row);
+    const { member } = await parseBody(request, agentKeyCreate);
+    return json({ member, key: await createAgentKey(env.DB, auth.row.id, member) }, 201);
   }
   if (path === '/api/team/focus' && request.method === 'POST') {
     const auth = await session(request, env.DB);

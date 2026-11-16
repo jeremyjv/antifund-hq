@@ -232,17 +232,53 @@ test('team focuses are scoped by week', async () => {
   assert.equal((await request('/api/team/focus', { method: 'POST', headers: a.headers, body: JSON.stringify({ week: '2026-11-17', member: 'geoff', title: 'x' }) })).status, 400);
 });
 
-test('goals seed once, add per horizon, toggle, archive, owner scoped', async () => {
+test('goals carry tasks; progress, claims, and log work from the web', async () => {
   const a = await visitor();
   const b = await visitor();
   const first = await (await request('/api/goals', { headers: { cookie: a.cookie } })).json();
-  assert.deepEqual([...new Set(first.goals.map(g => g.horizon))].sort(), ['month', 'quarter', 'year']);
-  const add = await request('/api/goals', { method: 'POST', headers: a.headers, body: JSON.stringify({ horizon: 'quarter', title: 'Raise fund II' }) });
-  assert.equal(add.status, 201);
-  const { goal } = await add.json();
-  assert.equal((await request('/api/goals', { method: 'POST', headers: a.headers, body: JSON.stringify({ horizon: 'decade', title: 'x' }) })).status, 400);
-  assert.equal((await request(`/api/goals/${goal.id}`, { method: 'PATCH', headers: b.headers, body: JSON.stringify({ expectedVersion: 1, changes: { done: true } }) })).status, 404);
-  assert.equal((await request(`/api/goals/${goal.id}`, { method: 'PATCH', headers: a.headers, body: JSON.stringify({ expectedVersion: 1, changes: { archived: true } }) })).status, 200);
-  const reloaded = await (await request('/api/goals', { headers: { cookie: a.cookie } })).json();
-  assert.equal(reloaded.goals.length, first.goals.length);
+  assert.ok(first.goals.length >= 3);
+  const goal = first.goals[0];
+  assert.ok(goal.total > 0 && goal.log.length > 0 && goal.member && goal.targetDate);
+  const created = await request('/api/goals', { method: 'POST', headers: a.headers, body: JSON.stringify({ title: 'Raise fund II', member: 'laura', targetDate: '2027-06-30', actor: 'jeremy' }) });
+  assert.equal(created.status, 201);
+  const { id } = await created.json();
+  const add = await (await request(`/api/goals/${id}/tasks`, { method: 'POST', headers: a.headers, body: JSON.stringify({ title: 'Draft LP deck', actor: 'jeremy' }) })).json();
+  assert.equal(add.duplicate, false);
+  const dup = await (await request(`/api/goals/${id}/tasks`, { method: 'POST', headers: a.headers, body: JSON.stringify({ title: 'draft  LP deck!', actor: 'steve' }) })).json();
+  assert.equal(dup.duplicate, true);
+  const t = add.task.id;
+  assert.equal((await request(`/api/tasks/${t}`, { method: 'POST', headers: a.headers, body: JSON.stringify({ action: 'claim', actor: 'laura' }) })).status, 200);
+  assert.equal((await request(`/api/tasks/${t}`, { method: 'POST', headers: a.headers, body: JSON.stringify({ action: 'claim', actor: 'steve' }) })).status, 409);
+  assert.equal((await request(`/api/tasks/${t}`, { method: 'POST', headers: b.headers, body: JSON.stringify({ action: 'complete', actor: 'laura' }) })).status, 404);
+  assert.equal((await request(`/api/tasks/${t}`, { method: 'POST', headers: a.headers, body: JSON.stringify({ action: 'complete', actor: 'laura', note: 'v1 sent' }) })).status, 200);
+  const after = (await (await request('/api/goals', { headers: { cookie: a.cookie } })).json()).goals.find(g => g.id === id);
+  assert.equal(`${after.done}/${after.total}`, '1/1');
+  assert.deepEqual(after.log.map(l => l.action).sort(), ['added_task', 'claimed', 'completed', 'created_goal']);
+});
+
+test('agents manage goal tasks over MCP with a personal key, without overlap', async () => {
+  const a = await visitor();
+  const goals = (await (await request('/api/goals', { headers: { cookie: a.cookie } })).json()).goals;
+  const keyFor = async member => (await (await request('/api/agent-keys', { method: 'POST', headers: a.headers, body: JSON.stringify({ member }) })).json()).key;
+  const steveKey = await keyFor('steve');
+  const geoffKey = await keyFor('geoff');
+  const rpc = (key, method, params = {}) => request(`/mcp/${key}`, { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ jsonrpc: '2.0', id: 1, method, params }) }).then(r => r.json());
+  const call = async (key, name, args) => JSON.parse((await rpc(key, 'tools/call', { name, arguments: args })).result.content[0].text);
+  const publicList = await (await request('/mcp', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ jsonrpc: '2.0', id: 1, method: 'tools/list' }) })).json();
+  assert.ok(!publicList.result.tools.some(t => t.name === 'complete_task'));
+  assert.ok((await rpc(steveKey, 'tools/list')).result.tools.some(t => t.name === 'complete_task'));
+  const listed = await call(steveKey, 'list_goals', {});
+  assert.equal(listed.you, 'steve');
+  const added = await call(steveKey, 'add_task', { goalId: goals[0].id, title: 'Interview three portfolio founders', claim: true });
+  assert.equal(added.task.assignee, 'steve');
+  const steal = await rpc(geoffKey, 'tools/call', { name: 'claim_task', arguments: { taskId: added.task.id } });
+  assert.equal(steal.result.isError, true);
+  assert.match(steal.result.content[0].text, /claimed by steve/);
+  const done = await call(steveKey, 'complete_task', { taskId: added.task.id, note: 'Notes in HQ' });
+  assert.equal(done.task.done, true);
+  const log = (await (await request('/api/goals', { headers: { cookie: a.cookie } })).json()).goals.find(g => g.id === goals[0].id).log;
+  assert.ok(log.some(l => l.action === 'completed' && l.source === 'agent' && l.actor === 'steve'));
+  const rotated = await keyFor('steve');
+  assert.notEqual(rotated, steveKey);
+  assert.equal((await request(`/mcp/${steveKey}`, { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ jsonrpc: '2.0', id: 1, method: 'tools/list' }) })).status, 401);
 });

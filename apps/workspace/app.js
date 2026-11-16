@@ -85,6 +85,9 @@ const state = {
   goals: null,
   goalsError: null,
   viewer: null,
+  agentKeys: [],
+  newKey: null,
+  keyMember: null,
 };
 const github = "https://github.com/jeremyjv/antifund-hq";
 const app = $("#app");
@@ -209,7 +212,7 @@ function page() {
         workspace: workspace,
         about: about,
         "agent-setup": agentSetup,
-        goals: () => `${heading("HQ / Goals", "Where we are going.", "The direction for the next month, the next 3 months, and the year. Weekly focuses on Home should ladder up to these.")}${goalsBoard()}`,
+        goals: goalsPage,
         ...Object.fromEntries(Object.keys(plannedPages).map((view) => [view, () => plannedPage(plannedPages[view])])),
       }[state.view] || overview
     )() + footer()
@@ -281,20 +284,66 @@ const setupClients = (url) => [
   ["Codex & others", "Any client that supports remote MCP over HTTP:", url],
 ];
 function agentSetup() {
-  const url = `${location.origin}/mcp`;
-  return `${heading("Connect / Agent setup", "Plug your agent into HQ in one step.", "Every teammate connects their own AI agent to the same firm context: research, sources, and soon pipeline, relationships, and portfolio data.")}
-  <p class="setup-note">Same setup for every teammate. Personal access, so each agent only sees what that person can, comes with sign-in.</p>
+  const keys = state.agentKeys || [];
+  const me = state.keyMember || viewerId();
+  const fresh = state.newKey && state.newKey.member === me ? state.newKey.key : null;
+  const url = fresh ? `${location.origin}/mcp/${fresh}` : `${location.origin}/mcp`;
+  const has = keys.some((k) => k.member === me);
+  return `${heading("Connect / Agent setup", "Plug your agent into HQ in one step.", "Your agent acts as you inside HQ: it reads the firm's research, sees every goal and task, claims what it's working on, and logs what it finishes under your name.")}
+  <section class="panel key-panel"><div class="eyebrow">Step 1 · Your personal agent key</div>
+  <div class="key-row"><label>I am <select id="key-member">${memberOptions(me)}</select></label>${btn("create-agent-key", `${icon("lock")} ${has ? "Create a new key" : "Create my key"}`, "primary")}</div>
+  ${fresh ? `<p class="key-fresh">Your key is in the setup below. Copy it now: it's shown only once.</p>` : `<p class="small-copy">${has ? `${esc(memberName(me))} already has a key. Creating a new one replaces it.` : "Without a key, agents can only read public research."} Keys connected: ${keys.map((k) => esc(memberName(k.member))).join(", ") || "none yet"}.</p>`}</section>
+  <div class="eyebrow setup-step">Step 2 · Add HQ to your agent</div>
   <div class="setup-grid">${setupClients(url).map(([name, how, code]) => `<section class="panel setup-card"><div class="eyebrow">${esc(name)}</div><p>${esc(how)}</p><pre class="code-field">${esc(code)}</pre>${btn("copy-text", `${icon("connect")} Copy`, "small", `data-copy="${esc(code)}"`)}</section>`).join("")}</div>
-  <section class="panel"><div class="eyebrow">What your agent can do today</div><ul class="planned-list"><li>Search public research with sources and dates<span class="pill portfolio">Live</span></li><li>Pull bounded context on any tracked company<span class="pill portfolio">Live</span></li><li>Read and update weekly focuses & goals<span class="pill">With sign-in</span></li><li>Log founder meetings and pipeline moves<span class="pill">With sign-in</span></li></ul><p class="small-copy">Try asking: “What evidence supports the robotics data-loop thesis, and what would change our mind?”</p></section>`;
+  <section class="panel"><div class="eyebrow">What your agent can do</div><ul class="planned-list"><li>See every goal, task, owner, and who claimed what<span class="pill portfolio">With key</span></li><li>Add tasks without duplicating existing ones<span class="pill portfolio">With key</span></li><li>Claim a task, so nobody else works on it<span class="pill portfolio">With key</span></li><li>Complete tasks and log progress under your name<span class="pill portfolio">With key</span></li><li>Search public research with sources and dates<span class="pill portfolio">Live</span></li></ul><p class="small-copy">Try asking: “What goals are open in HQ, and which unclaimed task should I take this week?”</p></section>`;
 }
-const HORIZONS = [["month", "Next month"], ["quarter", "Next 3 months"], ["year", "This year"]];
-function goalsBoard() {
-  if (state.goalsError) return `<section class="goals-board"><div class="team-board-error"><p>Goals could not load. ${esc(state.goalsError)}</p>${btn("retry-goals", "Try again", "small")}</div></section>`;
-  if (!state.goals) return `<section class="goals-board"><div class="loading-line"></div></section>`;
-  return `<section class="goals-board" aria-label="Direction"><div class="team-board-head"><span class="eyebrow">Direction</span><span class="team-week">Where we are going</span></div><div class="goal-columns">${HORIZONS.map(([h, label]) => {
-    const items = state.goals.filter((g) => g.horizon === h);
-    return `<article class="team-col goal-col"><header><strong>${label}</strong><span>${items.filter((g) => g.done).length} of ${items.length}</span></header><ul class="focus-list">${items.map((g) => `<li class="${g.done ? "done" : ""}"><label><input type="checkbox" data-goal-toggle="${esc(g.id)}" ${g.done ? "checked" : ""}><span>${esc(g.title)}</span></label><button type="button" class="focus-remove" data-action="goal-remove" data-id="${esc(g.id)}" aria-label="Remove goal: ${esc(g.title)}">${icon("close")}</button></li>`).join("")}</ul><form class="focus-add goal-add" data-horizon="${h}"><textarea name="title" rows="1" maxlength="200" autocomplete="off" placeholder="Add a goal…" aria-label="Add a goal for ${label.toLowerCase()}"></textarea></form></article>`;
-  }).join("")}</div></section>`;
+const memberName = (id) => state.team?.members.find((m) => m.id === id)?.name || (id ? id[0].toUpperCase() + id.slice(1) : "");
+function dueLabel(dateStr) {
+  const d = new Date(`${dateStr}T00:00:00`);
+  const days = Math.round((d - new Date(new Date().toDateString())) / 86400000);
+  const when = d.toLocaleDateString(undefined, { month: "short", day: "numeric" });
+  const rel = days < 0 ? `${-days} days overdue` : days === 0 ? "due today" : days < 14 ? `in ${days} days` : `in ${Math.round(days / 7)} weeks`;
+  return { text: `${when} · ${rel}`, overdue: days < 0 };
+}
+function ago(at) {
+  const m = Math.round((Date.now() - Date.parse(at)) / 60000);
+  return m < 1 ? "just now" : m < 60 ? `${m}m ago` : m < 1440 ? `${Math.round(m / 60)}h ago` : `${Math.round(m / 1440)}d ago`;
+}
+const LOG_VERB = { created_goal: "set the goal", added_task: "added", claimed: "claimed", completed: "completed", reopened: "reopened", note: "noted" };
+function logLine(l) {
+  const who = l.source === "agent" ? `${esc(memberName(l.actor))}'s agent` : esc(memberName(l.actor));
+  const what = l.action === "created_goal" ? "" : l.action === "note" ? esc(l.detail) : `“${esc(l.detail)}”`;
+  return `<li>${l.source === "agent" ? icon("spark") : `<span class="log-dot" aria-hidden="true"></span>`}<span><strong>${who}</strong> ${LOG_VERB[l.action]} ${what}</span><time>${ago(l.at)}</time></li>`;
+}
+function memberOptions(selected) {
+  return (state.team?.members || []).map((m) => `<option value="${esc(m.id)}" ${m.id === selected ? "selected" : ""}>${esc(m.name)}</option>`).join("");
+}
+function goalCard(g) {
+  const pct = g.total ? Math.round((g.done / g.total) * 100) : 0;
+  const due = dueLabel(g.targetDate);
+  const me = viewerId();
+  const tasks = g.tasks.map((t) => {
+    const claim = t.done ? `<span class="task-by">${esc(memberName(t.doneBy))}</span>`
+      : t.assignee ? `<button type="button" class="task-chip ${t.assignee === me ? "mine" : ""}" data-action="task-unclaim" data-id="${esc(t.id)}" title="Claimed by ${esc(memberName(t.assignee))}. Click to release.">${esc(memberName(t.assignee))}</button>`
+      : `<button type="button" class="task-claim" data-action="task-claim" data-id="${esc(t.id)}">Claim</button>`;
+    return `<li class="${t.done ? "done" : ""}"><label><input type="checkbox" data-task-toggle="${esc(t.id)}" ${t.done ? "checked" : ""}><span>${esc(t.title)}</span></label>${claim}<button type="button" class="focus-remove" data-action="task-remove" data-id="${esc(t.id)}" aria-label="Remove task: ${esc(t.title)}">${icon("close")}</button></li>`;
+  }).join("");
+  return `<article class="goal-card" aria-label="${esc(g.title)}">
+    <header class="goal-top"><div><h2>${esc(g.title)}</h2><p class="goal-meta"><span>${esc(memberName(g.member))}</span><span class="${due.overdue ? "overdue" : ""}">${esc(due.text)}</span></p></div>
+    <div class="goal-progress"><strong>${pct}%</strong><span>${g.done} of ${g.total} tasks</span><span class="goal-bar"><span style="width:${pct}%"></span></span></div>
+    <button type="button" class="focus-remove goal-remove" data-action="goal-remove" data-id="${esc(g.id)}" aria-label="Archive goal: ${esc(g.title)}">${icon("close")}</button></header>
+    <div class="goal-body"><div><div class="goal-label">Tasks</div><ul class="focus-list task-list">${tasks}</ul>
+    <form class="focus-add task-add" data-goal="${esc(g.id)}"><textarea name="title" rows="1" maxlength="200" placeholder="Add a task…" aria-label="Add a task to ${esc(g.title)}"></textarea></form></div>
+    <div class="goal-log"><div class="goal-label">Activity</div><ul>${g.log.slice(0, 6).map(logLine).join("") || "<li><span>No activity yet.</span></li>"}</ul></div></div>
+  </article>`;
+}
+function goalsPage() {
+  const head = heading("HQ / Goals", "Where we are going.", "Each goal breaks into the high-level tasks that get it done. Progress moves as tasks are completed, by people here or by their agents over MCP.");
+  if (state.goalsError) return `${head}<div class="team-board-error"><p>Goals could not load. ${esc(state.goalsError)}</p>${btn("retry-goals", "Try again", "small")}</div>`;
+  if (!state.goals) return `${head}<div class="loading-line"></div>`;
+  const nextMonth = new Date(Date.now() + 30 * 86400000).toISOString().slice(0, 10);
+  return `${head}<form class="goal-new" id="goal-new"><input name="title" maxlength="200" placeholder="New goal, e.g. Close our first proprietary-sourced deal" aria-label="New goal" required><select name="member" aria-label="Owner">${memberOptions(viewerId())}</select><input name="targetDate" type="date" value="${nextMonth}" aria-label="Target date" required><button type="submit" class="button primary">${icon("plus")} Add goal</button></form>
+  <div class="goal-list">${state.goals.map(goalCard).join("") || `<div class="empty-state"><h3>Set your first goal.</h3></div>`}</div>`;
 }
 function overview() {
   return teamHome();
@@ -618,18 +667,21 @@ async function loadGoals() {
   try {
     const result = await api("/api/goals");
     state.goals = result.goals;
+    state.agentKeys = result.agentKeys;
     state.csrf = result.csrfToken;
     state.goalsError = null;
   } catch (error) {
     state.goalsError = error.message;
   }
 }
-async function patchGoal(id, changes) {
-  const g = state.goals.find((x) => x.id === id);
-  if (!g) return;
-  const { goal } = await api(`/api/goals/${id}`, { method: "PATCH", body: JSON.stringify({ expectedVersion: g.version, changes }) });
-  if (changes.archived) state.goals = state.goals.filter((x) => x.id !== id);
-  else Object.assign(g, goal);
+async function goalsChanged(focusSelector) {
+  await loadGoals();
+  if (state.view !== "goals") return;
+  shell();
+  if (focusSelector) $(focusSelector)?.focus({ preventScroll: true });
+}
+async function taskAction(id, action) {
+  await api(`/api/tasks/${id}`, { method: "POST", body: JSON.stringify({ action, actor: viewerId() }) });
 }
 async function patchFocus(id, changes) {
   const f = state.team.focuses.find((x) => x.id === id);
@@ -835,11 +887,32 @@ document.addEventListener("click", async (event) => {
         renderTeam();
         break;
       case "goal-remove": {
-        button.disabled = true;
         const g = state.goals.find((x) => x.id === id);
-        await patchGoal(id, { archived: true });
-        renderTeam();
-        toast(`Removed "${g?.title || "goal"}".`);
+        if (!confirm(`Archive the goal "${g?.title}"? Its tasks and log are kept.`)) break;
+        await api(`/api/goals/${id}`, { method: "PATCH", body: JSON.stringify({ changes: { archived: true } }) });
+        await goalsChanged();
+        toast(`Archived "${g?.title || "goal"}".`);
+        break;
+      }
+      case "task-claim":
+      case "task-unclaim":
+      case "task-remove":
+        button.disabled = true;
+        try {
+          await taskAction(id, action.slice(5));
+        } catch (error) {
+          toast(error.message, true);
+        }
+        await goalsChanged();
+        break;
+      case "create-agent-key": {
+        const member = $("#key-member")?.value || viewerId();
+        const { key } = await api("/api/agent-keys", { method: "POST", body: JSON.stringify({ member }) });
+        state.newKey = { member, key };
+        state.keyMember = member;
+        await loadGoals();
+        shell();
+        toast(`Key created for ${memberName(member)}.`);
         break;
       }
       case "copy-text":
@@ -1032,17 +1105,21 @@ document.addEventListener("input", (event) => {
   if (event.target.closest("#record-form")) editorDirty = true;
 });
 document.addEventListener("change", async (event) => {
-  const goalToggle = event.target.dataset?.goalToggle;
-  if (goalToggle) {
+  if (event.target.id === "key-member") {
+    state.keyMember = event.target.value;
+    shell();
+    $("#key-member")?.focus({ preventScroll: true });
+    return;
+  }
+  const taskToggle = event.target.dataset?.taskToggle;
+  if (taskToggle) {
     event.target.disabled = true;
     try {
-      await patchGoal(goalToggle, { done: event.target.checked });
+      await taskAction(taskToggle, event.target.checked ? "complete" : "reopen");
     } catch (error) {
       toast(error.message, true);
-      if (error.status === 409) await loadGoals();
     }
-    renderTeam();
-    $(`[data-goal-toggle="${goalToggle}"]`)?.focus({ preventScroll: true });
+    await goalsChanged(`[data-task-toggle="${taskToggle}"]`);
     return;
   }
   const toggle = event.target.dataset?.focusToggle;
@@ -1077,18 +1154,32 @@ document.addEventListener("change", async (event) => {
   if (event.target.closest("#record-form")) editorDirty = true;
 });
 document.addEventListener("submit", async (event) => {
-  const goalAdd = event.target.closest(".goal-add");
-  if (goalAdd) {
+  if (event.target.id === "goal-new") {
     event.preventDefault();
-    const input = goalAdd.elements.title;
+    const f = event.target;
+    const button = f.querySelector("button");
+    button.disabled = true;
+    try {
+      await api("/api/goals", { method: "POST", body: JSON.stringify({ title: f.elements.title.value.trim(), member: f.elements.member.value, targetDate: f.elements.targetDate.value, actor: viewerId() }) });
+      await goalsChanged("#goal-new input");
+      toast("Goal added. Break it into tasks below.");
+    } catch (error) {
+      button.disabled = false;
+      toast(error.message, true);
+    }
+    return;
+  }
+  const taskAdd = event.target.closest(".task-add");
+  if (taskAdd) {
+    event.preventDefault();
+    const input = taskAdd.elements.title;
     const title = input.value.trim();
     if (!title || input.readOnly) return;
     input.readOnly = true;
     try {
-      const { goal } = await api("/api/goals", { method: "POST", body: JSON.stringify({ horizon: goalAdd.dataset.horizon, title }) });
-      state.goals.push(goal);
-      state.refocusMember = `h:${goalAdd.dataset.horizon}`;
-      renderTeam();
+      const res = await api(`/api/goals/${taskAdd.dataset.goal}/tasks`, { method: "POST", body: JSON.stringify({ title, actor: viewerId() }) });
+      if (res.duplicate) toast("That task already exists on this goal.");
+      await goalsChanged(`.task-add[data-goal="${taskAdd.dataset.goal}"] textarea`);
     } catch (error) {
       input.readOnly = false;
       toast(error.message, true);
