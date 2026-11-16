@@ -84,7 +84,6 @@ const state = {
   week: null,
   goals: null,
   goalsError: null,
-  setupMember: null,
   viewer: null,
 };
 const github = "https://github.com/jeremyjv/antifund-hq";
@@ -283,12 +282,10 @@ const setupClients = (url) => [
 ];
 function agentSetup() {
   const url = `${location.origin}/mcp`;
-  const who = state.setupMember || "geoff";
-  const members = state.team?.members || [];
   return `${heading("Connect / Agent setup", "Plug your agent into HQ in one step.", "Every teammate connects their own AI agent to the same firm context: research, sources, and soon pipeline, relationships, and portfolio data.")}
-  <div class="setup-people" role="group" aria-label="Choose teammate">${members.map((m) => `<button type="button" class="setup-person ${m.id === who ? "active" : ""}" data-action="setup-member" data-id="${esc(m.id)}" aria-pressed="${m.id === who}">${esc(m.name)}</button>`).join("")}</div>
+  <p class="setup-note">Same setup for every teammate. Personal access, so each agent only sees what that person can, comes with sign-in.</p>
   <div class="setup-grid">${setupClients(url).map(([name, how, code]) => `<section class="panel setup-card"><div class="eyebrow">${esc(name)}</div><p>${esc(how)}</p><pre class="code-field">${esc(code)}</pre>${btn("copy-text", `${icon("connect")} Copy`, "small", `data-copy="${esc(code)}"`)}</section>`).join("")}</div>
-  <section class="panel"><div class="eyebrow">What ${esc(members.find((m) => m.id === who)?.name || "your")} agent can do today</div><ul class="planned-list"><li>Search public research with sources and dates<span class="pill portfolio">Live</span></li><li>Pull bounded context on any tracked company<span class="pill portfolio">Live</span></li><li>Read and update weekly focuses & goals<span class="pill">With sign-in</span></li><li>Log founder meetings and pipeline moves<span class="pill">With sign-in</span></li></ul><p class="small-copy">Try asking: “What evidence supports the robotics data-loop thesis, and what would change our mind?”</p></section>`;
+  <section class="panel"><div class="eyebrow">What your agent can do today</div><ul class="planned-list"><li>Search public research with sources and dates<span class="pill portfolio">Live</span></li><li>Pull bounded context on any tracked company<span class="pill portfolio">Live</span></li><li>Read and update weekly focuses & goals<span class="pill">With sign-in</span></li><li>Log founder meetings and pipeline moves<span class="pill">With sign-in</span></li></ul><p class="small-copy">Try asking: “What evidence supports the robotics data-loop thesis, and what would change our mind?”</p></section>`;
 }
 const HORIZONS = [["month", "Next month"], ["quarter", "Next 3 months"], ["year", "This year"]];
 function goalsBoard() {
@@ -845,11 +842,6 @@ document.addEventListener("click", async (event) => {
         toast(`Removed "${g?.title || "goal"}".`);
         break;
       }
-      case "setup-member":
-        state.setupMember = id;
-        shell();
-        $(`[data-action="setup-member"][data-id="${id}"]`)?.focus({ preventScroll: true });
-        break;
       case "copy-text":
         await navigator.clipboard.writeText(button.dataset.copy);
         toast("Copied.");
