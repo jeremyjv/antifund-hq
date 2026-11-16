@@ -2293,3 +2293,12 @@ dialog::backdrop {
 .kpi-unit { font-size: 13px; }
 .kpi-note { font-size: 12px; }
 .rail-item { font: 500 11px/1.2 Plex, Arial, sans-serif; letter-spacing: 0; }
+
+/* Greeting name: looks like text, switches viewer on click */
+.viewer-name { position: relative; display: inline-block; cursor: pointer; }
+.viewer-name select { position: absolute; inset: 0; opacity: 0; cursor: pointer; font-size: 16px; }
+.viewer-name > span[aria-hidden] { border-bottom: 1px dashed transparent; }
+.viewer-name:hover > span[aria-hidden],
+.viewer-name:focus-within > span[aria-hidden] { border-bottom-color: var(--muted); }
+.visually-hidden { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+.home-greeting .viewer-name, .home-greeting .viewer-name > span[aria-hidden] { font: inherit; color: inherit; }

@@ -84,6 +84,7 @@ const state = {
   goals: null,
   goalsError: null,
   setupMember: null,
+  viewer: null,
 };
 const github = "https://github.com/jeremyjv/antifund-hq";
 const app = $("#app");
@@ -248,6 +249,18 @@ function teamColumn(m) {
   <ul class="focus-list">${items.map((f) => `<li class="${f.done ? "done" : ""}"><label><input type="checkbox" data-focus-toggle="${esc(f.id)}" ${f.done ? "checked" : ""}><span>${esc(f.title)}</span></label><button type="button" class="focus-remove" data-action="focus-remove" data-id="${esc(f.id)}" aria-label="Remove focus: ${esc(f.title)}">${icon("close")}</button></li>`).join("")}</ul>
   <form class="focus-add" data-member="${esc(m.id)}"><input name="title" maxlength="200" autocomplete="off" placeholder="Add a focus for ${esc(m.name)}…" aria-label="Add a focus for ${esc(m.name)}"></form></article>`;
 }
+function viewerId() {
+  if (!state.viewer) {
+    try { state.viewer = localStorage.getItem("afhq_viewer") || "jeremy"; } catch { state.viewer = "jeremy"; }
+  }
+  return state.viewer;
+}
+function viewerPicker() {
+  const members = state.team?.members || [{ id: "jeremy", name: "Jeremy" }];
+  const id = viewerId();
+  const current = members.find((m) => m.id === id) || members.find((m) => m.id === "jeremy") || members[0];
+  return `<label class="viewer-name"><span class="visually-hidden">Viewing as</span><select id="viewer-select" title="Switch who is viewing">${members.map((m) => `<option value="${esc(m.id)}" ${m.id === current.id ? "selected" : ""}>${esc(m.name)}</option>`).join("")}</select><span aria-hidden="true">${esc(current.name)}</span></label>`;
+}
 function teamHome() {
   const now = new Date();
   const board = state.teamError
@@ -255,7 +268,7 @@ function teamHome() {
     : !state.team
       ? `<div class="loading-line"></div>`
       : `<div class="team-columns">${state.team.members.map(teamColumn).join("")}</div>`;
-  return `<section class="home-greeting"><h1>${greeting(now)}</h1><span>${esc(now.toLocaleDateString(undefined, { weekday: "long", month: "long", day: "numeric" }))}</span></section>
+  return `<section class="home-greeting"><h1>${greeting(now)}, ${viewerPicker()}</h1><span>${esc(now.toLocaleDateString(undefined, { weekday: "long", month: "long", day: "numeric" }))}</span></section>
   <section class="team-board" aria-label="Team focuses by week"><div class="team-board-head"><span class="eyebrow">${esc(weekLabel(state.week))}</span><span class="team-week">${esc(weekRange(state.week))}</span>${state.week !== weekKey(mondayOf()) ? `<button type="button" class="week-today" data-action="week-today">Back to this week</button>` : ""}<span class="pill" title="Illustrative focuses until team members sign in. Your edits are saved to this browser's private workspace.">Sample focuses</span><div class="week-nav"><button type="button" class="icon-button" data-action="week-prev" aria-label="Previous week">${icon("chevron-left")}</button><button type="button" class="icon-button" data-action="week-next" aria-label="Next week">${icon("chevron-right")}</button></div></div>${board}</section>${renderKpis(esc)}`;
 }
 function plannedPage(p) {
@@ -1038,6 +1051,13 @@ document.addEventListener("change", async (event) => {
     }
     renderTeam();
     $(`[data-focus-toggle="${toggle}"]`)?.focus({ preventScroll: true });
+    return;
+  }
+  if (event.target.id === "viewer-select") {
+    state.viewer = event.target.value;
+    try { localStorage.setItem("afhq_viewer", state.viewer); } catch {}
+    shell();
+    $("#viewer-select")?.focus({ preventScroll: true });
     return;
   }
   if (event.target.id === "firm-company") {
