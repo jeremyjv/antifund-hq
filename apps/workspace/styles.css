@@ -2302,3 +2302,4 @@ dialog::backdrop {
 .viewer-name:focus-within > span[aria-hidden] { border-bottom-color: var(--muted); }
 .visually-hidden { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
 .home-greeting .viewer-name, .home-greeting .viewer-name > span[aria-hidden] { font: inherit; color: inherit; }
+.team-board-head .week-nav { margin-left: auto; }
