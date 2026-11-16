@@ -2342,3 +2342,4 @@ body, .app-main, .topbar { background: var(--canvas); }
 }
 .focus-add textarea::placeholder { color: var(--muted); }
 .focus-add textarea:focus { outline: none; border-bottom-color: var(--muted); }
+:root { --card: #faf6ee; }
