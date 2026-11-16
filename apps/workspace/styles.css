@@ -2303,3 +2303,24 @@ dialog::backdrop {
 .visually-hidden { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
 .home-greeting .viewer-name, .home-greeting .viewer-name > span[aria-hidden] { font: inherit; color: inherit; }
 .team-board-head .week-nav { margin-left: auto; }
+
+/* Contrast pass: slightly darker canvas, bright raised cards */
+:root { --canvas: #efeadf; --card: #fffdf9; }
+body, .app-main, .topbar { background: var(--canvas); }
+.team-board, .goals-board {
+  background: var(--card);
+  border-color: #ddd5c6;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 1px 2px #1414140d, 0 4px 14px #1414140a;
+}
+.team-board-head { background: var(--card); border-bottom-color: #e6dfd2; }
+.team-columns, .goal-columns { background: #e6dfd2; }
+.team-col { background: var(--card); }
+.kpi-card, .panel, .firm-card {
+  background: var(--card);
+  border-color: #ddd5c6;
+  border-radius: 12px;
+  box-shadow: 0 1px 2px #1414140d, 0 4px 14px #1414140a;
+}
+.week-nav .icon-button { background: var(--card); }
