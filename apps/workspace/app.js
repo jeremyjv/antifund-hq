@@ -248,7 +248,7 @@ function teamColumn(m) {
   const done = items.filter((f) => f.done).length;
   return `<article class="team-col" aria-label="${esc(m.name)}'s focuses"><header><strong>${esc(m.name)}</strong><span>${done} of ${items.length}</span></header><span class="team-role">${esc(m.role)}</span>
   <ul class="focus-list">${items.map((f) => `<li class="${f.done ? "done" : ""}"><label><input type="checkbox" data-focus-toggle="${esc(f.id)}" ${f.done ? "checked" : ""}><span>${esc(f.title)}</span></label><button type="button" class="focus-remove" data-action="focus-remove" data-id="${esc(f.id)}" aria-label="Remove focus: ${esc(f.title)}">${icon("close")}</button></li>`).join("")}</ul>
-  <form class="focus-add" data-member="${esc(m.id)}"><input name="title" maxlength="200" autocomplete="off" placeholder="Add a focus for ${esc(m.name)}…" aria-label="Add a focus for ${esc(m.name)}"></form></article>`;
+  <form class="focus-add" data-member="${esc(m.id)}"><textarea name="title" rows="1" maxlength="200" autocomplete="off" placeholder="Add a focus for ${esc(m.name)}…" aria-label="Add a focus for ${esc(m.name)}"></textarea></form></article>`;
 }
 function viewerId() {
   if (!state.viewer) {
@@ -296,7 +296,7 @@ function goalsBoard() {
   if (!state.goals) return `<section class="goals-board"><div class="loading-line"></div></section>`;
   return `<section class="goals-board" aria-label="Direction"><div class="team-board-head"><span class="eyebrow">Direction</span><span class="team-week">Where we are going</span></div><div class="goal-columns">${HORIZONS.map(([h, label]) => {
     const items = state.goals.filter((g) => g.horizon === h);
-    return `<article class="team-col goal-col"><header><strong>${label}</strong><span>${items.filter((g) => g.done).length} of ${items.length}</span></header><ul class="focus-list">${items.map((g) => `<li class="${g.done ? "done" : ""}"><label><input type="checkbox" data-goal-toggle="${esc(g.id)}" ${g.done ? "checked" : ""}><span>${esc(g.title)}</span></label><button type="button" class="focus-remove" data-action="goal-remove" data-id="${esc(g.id)}" aria-label="Remove goal: ${esc(g.title)}">${icon("close")}</button></li>`).join("")}</ul><form class="focus-add goal-add" data-horizon="${h}"><input name="title" maxlength="200" autocomplete="off" placeholder="Add a goal…" aria-label="Add a goal for ${label.toLowerCase()}"></form></article>`;
+    return `<article class="team-col goal-col"><header><strong>${label}</strong><span>${items.filter((g) => g.done).length} of ${items.length}</span></header><ul class="focus-list">${items.map((g) => `<li class="${g.done ? "done" : ""}"><label><input type="checkbox" data-goal-toggle="${esc(g.id)}" ${g.done ? "checked" : ""}><span>${esc(g.title)}</span></label><button type="button" class="focus-remove" data-action="goal-remove" data-id="${esc(g.id)}" aria-label="Remove goal: ${esc(g.title)}">${icon("close")}</button></li>`).join("")}</ul><form class="focus-add goal-add" data-horizon="${h}"><textarea name="title" rows="1" maxlength="200" autocomplete="off" placeholder="Add a goal…" aria-label="Add a goal for ${label.toLowerCase()}"></textarea></form></article>`;
   }).join("")}</div></section>`;
 }
 function overview() {
@@ -1020,7 +1020,19 @@ document.addEventListener("click", async (event) => {
     button.disabled = false;
   }
 });
+document.addEventListener("keydown", (event) => {
+  const field = event.target.closest?.(".focus-add textarea");
+  if (field && event.key === "Enter" && !event.shiftKey && !event.isComposing) {
+    event.preventDefault();
+    field.form.requestSubmit();
+  }
+});
 document.addEventListener("input", (event) => {
+  const grow = event.target.closest?.(".focus-add textarea");
+  if (grow) {
+    grow.style.height = "auto";
+    grow.style.height = `${grow.scrollHeight}px`;
+  }
   if (event.target.id === "company-search") {
     state.query = event.target.value;
     $("#company-results").innerHTML = companyRows();
