@@ -2,7 +2,7 @@
 export const sections = [
   { id: 'hq', label: 'HQ', title: 'HQ', icon: 'home', desc: 'The shared desk: what happened, what is open, who is on it.',
     pages: [['overview', 'Home', 'home'], ['goals', 'Goals', 'target'], ['feed', 'Feed', 'feed'], ['teamlog', 'Team log', 'log'], ['workspace', 'Saved work', 'folder']] },
-  { id: 'deals', label: 'Deals', title: 'Deals', icon: 'search', desc: 'One flow from first signal to partner decision.',
+  { id: 'deals', label: 'Deals', title: 'Deals', icon: 'handshake', desc: 'One flow from first signal to partner decision.',
     pages: [['pipeline', 'Pipeline', 'grid'], ['sourcing', 'Sourcing', 'search'], ['companies', 'Companies', 'companies'], ['diligence', 'Diligence & memos', 'edit'], ['agents', 'Agents', 'spark'], ['research', 'Research briefs', 'research']] },
   { id: 'people', label: 'People', title: 'Relationships', icon: 'people', desc: 'The in-person edge, logged with follow-ups.',
     pages: [['founders', 'Founders', 'people'], ['visits', 'Field visits & events', 'pin'], ['intros', 'Intros & co-investors', 'connect']] },
