@@ -183,7 +183,7 @@ function heading(eyebrow, title, description, actions = "") {
   return `<header class="page-heading"><div><div class="eyebrow">${esc(eyebrow)}</div><h1>${esc(title)}</h1><p>${esc(description)}</p></div>${actions}</header>`;
 }
 function footer() {
-  return `<footer class="page-footer"><span>Public-source research · Checked ${esc(date(state.research?.checkedAt))}</span><span>Built by Jeremy · Independent prototype, unaffiliated with Anti Fund</span></footer>`;
+  return `<footer class="page-footer"><span>Public-source research · Checked ${esc(date(state.research?.checkedAt))}</span><span>Built by Jeremy · Built for Anti Fund</span></footer>`;
 }
 function navItem(id, label, iconName, count = "") {
   return `<a class="nav-item ${state.view === id ? "active" : ""}" href="#${id}" ${state.view === id ? 'aria-current="page"' : ""}>${icon(iconName)}<span>${label}</span>${count !== "" ? `<span class="nav-count">${count}</span>` : ""}</a>`;
