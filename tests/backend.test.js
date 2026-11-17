@@ -282,3 +282,50 @@ test('agents manage goal tasks over MCP with a personal key, without overlap', a
   assert.notEqual(rotated, steveKey);
   assert.equal((await request(`/mcp/${steveKey}`, { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ jsonrpc: '2.0', id: 1, method: 'tools/list' }) })).status, 401);
 });
+
+test('CRM records are owner scoped, versioned, append-only, and reachable by agents over MCP', async () => {
+  const a = await visitor();
+  const b = await visitor();
+  const crmOf = async (v) => (await request('/api/crm', { headers: { cookie: v.cookie } })).json();
+  const first = await crmOf(a);
+  assert.ok(first.orgs.some(o => o.catalogId === 'robotics-a' && o.stage === null), 'public research companies arrive with no stage');
+  assert.ok(first.orgs.some(o => o.sample && o.stage), 'fictional sample deals are flagged');
+  assert.equal(first.interactions.filter(t => t.orgId === first.orgs.find(o => o.catalogId === 'robotics-a').id).length, 0, 'no invented activity for real companies');
+
+  const org = (await (await request('/api/crm/orgs', { method: 'POST', headers: a.headers, body: JSON.stringify({ name: 'Test Dynamics', kind: 'company', stage: 'sourced', actor: 'jeremy' }) })).json()).org;
+  const personRes = await request('/api/crm/people', { method: 'POST', headers: a.headers, body: JSON.stringify({ name: 'Test Founder', kind: 'founder', orgId: org.id, actor: 'jeremy' }) });
+  assert.equal(personRes.status, 201);
+  const person = (await personRes.json()).person;
+
+  const move = await request(`/api/crm/orgs/${org.id}`, { method: 'PATCH', headers: a.headers, body: JSON.stringify({ expectedVersion: 1, changes: { stage: 'diligence' }, actor: 'steve' }) });
+  assert.equal(move.status, 200);
+  const stale = await request(`/api/crm/orgs/${org.id}`, { method: 'PATCH', headers: a.headers, body: JSON.stringify({ expectedVersion: 1, changes: { stage: 'passed' }, actor: 'geoff' }) });
+  assert.equal(stale.status, 409, 'stale versions never overwrite');
+  const revisions = (await (await request(`/api/crm/orgs/${org.id}/history`, { headers: { cookie: a.cookie } })).json()).revisions;
+  assert.deepEqual(revisions.map(r => r.version), [2, 1]);
+  const stageLog = (await crmOf(a)).interactions.filter(t => t.orgId === org.id && t.kind === 'stage');
+  assert.deepEqual(stageLog.map(t => t.summary), ['Sourced → Diligence', 'Added at Sourced'], 'stage moves are logged once, only when the update applied');
+
+  const crossOwner = await request(`/api/crm/orgs/${org.id}`, { method: 'PATCH', headers: b.headers, body: JSON.stringify({ expectedVersion: 2, changes: { stage: 'passed' }, actor: 'geoff' }) });
+  assert.equal(crossOwner.status, 404, 'another visitor cannot touch the record');
+  assert.ok(!(await crmOf(b)).orgs.some(o => o.id === org.id));
+  assert.equal((await request('/api/crm/people', { method: 'POST', headers: { ...a.headers, origin: 'https://attacker.example' }, body: JSON.stringify({ name: 'X', kind: 'founder', actor: 'jeremy' }) })).status, 403);
+
+  const key = (await (await request('/api/agent-keys', { method: 'POST', headers: a.headers, body: JSON.stringify({ member: 'steve' }) })).json()).key;
+  const call = (name, args) => request(`/mcp/${key}`, { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ jsonrpc: '2.0', id: 1, method: 'tools/call', params: { name, arguments: args } }) }).then(r => r.json()).then(r => ({ isError: r.result.isError, data: (() => { try { return JSON.parse(r.result.content[0].text); } catch { return r.result.content[0].text; } })() }));
+  const found = await call('search_crm', { query: 'Test Found' });
+  assert.equal(found.data.results[0].id, person.id);
+  const logged = await call('log_interaction', { record: 'Test Founder', kind: 'call', summary: 'Raising a seed in Q1', nextStep: 'Follow up', nextStepDue: '2027-01-10' });
+  assert.equal(logged.isError, false, JSON.stringify(logged.data));
+  assert.equal(logged.data.followUp.due, '2027-01-10');
+  const knows = await call('who_knows', { record: 'Test Dynamics' });
+  assert.equal(knows.data.whoKnows[0].member, 'steve');
+  const after = await crmOf(a);
+  const touch = after.interactions.find(t => t.summary === 'Raising a seed in Q1');
+  assert.equal(touch.actor, 'steve');
+  assert.equal(touch.source, 'agent');
+  assert.equal(touch.orgId, org.id, 'a touch on a person also lands on their organization');
+  await assert.rejects(db.prepare('DELETE FROM crm_interactions WHERE id=?').bind(touch.id).run(), /append-only/);
+  const publicTools = await (await request('/mcp', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ jsonrpc: '2.0', id: 1, method: 'tools/list' }) })).json();
+  assert.ok(!publicTools.result.tools.some(t => t.name === 'search_crm'), 'public MCP never exposes the CRM');
+});

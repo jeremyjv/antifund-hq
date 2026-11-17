@@ -1,4 +1,5 @@
-import { ApiError, parseBody, recordCreate, recordUpdate, focusCreate, focusUpdate, weekId, goalCreate, goalUpdate, taskCreate, taskAction, goalNote, agentKeyCreate } from '../../packages/core/schema.js';
+import { ApiError, parseBody, recordCreate, recordUpdate, focusCreate, focusUpdate, weekId, goalCreate, goalUpdate, taskCreate, taskAction, goalNote, agentKeyCreate, crmOrgCreate, crmPersonCreate, crmOrgUpdate, crmPersonUpdate, crmInteractionCreate } from '../../packages/core/schema.js';
+import { listCrm, createOrg, createPerson, updateOrg, updatePerson, logInteraction, crmHistory } from '../../packages/core/crm.js';
 import { TEAM, listFocuses, createFocus, updateFocus } from '../../packages/core/team.js';
 import { listGoals, createGoal, updateGoal, addTask, claimTask, unclaimTask, setTaskDone, archiveTask, addNote, createAgentKey, listAgentKeys } from '../../packages/core/goals.js';
 import { catalog, listRecords, createRecord, updateRecord, history } from '../../packages/core/store.js';
@@ -80,6 +81,28 @@ async function route(request, env) {
       : action === 'reopen' ? await setTaskDone(env.DB, owner, id, false, actor, 'web')
       : (await archiveTask(env.DB, owner, id), null);
     return json({ task });
+  }
+  if (path === '/api/crm' && request.method === 'GET') {
+    const auth = await session(request, env.DB, true);
+    const crm = await listCrm(env.DB, auth.row.id, await catalog(env.DB), { archived: url.searchParams.get('archived') === 'true' });
+    return json({ ...crm, csrfToken: auth.row.csrf_token }, 200, auth.cookie ? { 'Set-Cookie': auth.cookie } : {});
+  }
+  const crmRoute = path.match(/^\/api\/crm\/(orgs|people|interactions)(?:\/([a-f0-9-]{36})(\/history)?)?$/);
+  if (crmRoute) {
+    const [, kind, id, hist] = crmRoute;
+    const auth = await session(request, env.DB);
+    const owner = auth.row.id;
+    if (hist && request.method === 'GET' && kind !== 'interactions') return json({ revisions: await crmHistory(env.DB, owner, kind === 'orgs' ? 'org' : 'person', id) });
+    verifyWrite(request, auth.row);
+    if (!id && request.method === 'POST') {
+      if (kind === 'orgs') { const input = await parseBody(request, crmOrgCreate); return json({ org: await createOrg(env.DB, owner, input, input.actor) }, 201); }
+      if (kind === 'people') { const input = await parseBody(request, crmPersonCreate); return json({ person: await createPerson(env.DB, owner, input, input.actor) }, 201); }
+      const input = await parseBody(request, crmInteractionCreate);
+      return json({ interaction: await logInteraction(env.DB, owner, input, input.actor) }, 201);
+    }
+    if (id && !hist && request.method === 'PATCH' && kind === 'orgs') { const input = await parseBody(request, crmOrgUpdate); return json({ org: await updateOrg(env.DB, owner, id, input, input.actor) }); }
+    if (id && !hist && request.method === 'PATCH' && kind === 'people') { const input = await parseBody(request, crmPersonUpdate); return json({ person: await updatePerson(env.DB, owner, id, input) }); }
+    throw new ApiError(405, 'Method not allowed');
   }
   if (path === '/api/agent-keys' && request.method === 'POST') {
     const auth = await session(request, env.DB);

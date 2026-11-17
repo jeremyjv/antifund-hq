@@ -81,3 +81,28 @@ export const taskAction = z.object({
 }).strict();
 export const goalNote = z.object({ note: z.string().trim().min(1).max(500), actor: member }).strict();
 export const agentKeyCreate = z.object({ member }).strict();
+
+// In-house CRM
+const optText = (max) => z.string().trim().max(max).nullable().optional();
+const stage = z.enum(['sourced', 'first_call', 'diligence', 'partner_review', 'invested', 'passed']).nullable();
+const orgFields = {
+  name: title, kind: z.enum(['company', 'fund', 'lp', 'lab']), sector: optText(120), domain: optText(200),
+  stage: stage.optional(), dealOwner: member.nullable().optional(), nextStep: optText(300), nextStepDue: isoDate.nullable().optional(),
+  passReason: optText(300), notes: z.string().max(5000).optional(),
+};
+const personFields = {
+  name: title, kind: z.enum(['founder', 'investor', 'lp', 'expert', 'operator']), title: optText(120), orgId: z.string().uuid().nullable().optional(),
+  email: z.string().trim().email().max(200).nullable().optional().or(z.literal('').transform(() => null)), location: optText(120),
+  relOwner: member.nullable().optional(), strength: z.enum(['cold', 'warm', 'strong']).optional(), notes: z.string().max(5000).optional(),
+};
+const partial = (fields) => z.object({ ...Object.fromEntries(Object.entries(fields).map(([k, v]) => [k, v.optional()])), archived: z.boolean().optional() })
+  .strict().refine((v) => Object.keys(v).length > 0, 'Supply at least one change');
+export const crmOrgCreate = z.object({ ...orgFields, actor: member }).strict();
+export const crmPersonCreate = z.object({ ...personFields, actor: member }).strict();
+export const crmOrgUpdate = z.object({ expectedVersion: z.number().int().positive(), changes: partial(orgFields), actor: member }).strict();
+export const crmPersonUpdate = z.object({ expectedVersion: z.number().int().positive(), changes: partial(personFields), actor: member }).strict();
+export const crmInteractionCreate = z.object({
+  personId: z.string().uuid().nullable().optional(), orgId: z.string().uuid().nullable().optional(),
+  kind: z.enum(['meeting', 'call', 'email', 'intro', 'note']), summary: z.string().trim().min(1).max(1000),
+  occurredAt: isoDate.optional(), actor: member,
+}).strict();
