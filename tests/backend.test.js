@@ -139,7 +139,7 @@ test('stateless public MCP supports initialization, discovery, and evidence tool
   assert.ok(initialize.result.capabilities.tools);
   assert.equal((await rpc({ method: 'notifications/initialized' })).status, 202);
   const listing = await (await rpc({ id: 2, method: 'tools/list' })).json();
-  assert.deepEqual(listing.result.tools.map(tool => tool.name), ['search_research', 'get_company_context']);
+  assert.deepEqual(listing.result.tools.map(tool => tool.name), ['search_research', 'get_company_context', 'search_signals']);
   const result = await (await rpc({ id: 3, method: 'tools/call', params: { name: 'get_company_context', arguments: { companyId: 'robotics-a' } } })).json();
   assert.equal(result.result.isError, false);
   assert.ok(JSON.parse(result.result.content[0].text).sources.length);
@@ -328,4 +328,65 @@ test('CRM records are owner scoped, versioned, append-only, and reachable by age
   await assert.rejects(db.prepare('DELETE FROM crm_interactions WHERE id=?').bind(touch.id).run(), /append-only/);
   const publicTools = await (await request('/mcp', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ jsonrpc: '2.0', id: 1, method: 'tools/list' }) })).json();
   assert.ok(!publicTools.result.tools.some(t => t.name === 'search_crm'), 'public MCP never exposes the CRM');
+});
+
+test('Signal Watch scores public signals per owner-scoped watch, and promotes finds into the CRM', async () => {
+  const now = new Date().toISOString();
+  const sig = (id, source, kind, title, entity, metrics, tags = []) => db.prepare('INSERT INTO signals(id,source,kind,title,summary,url,author,entity,entity_key,tags,metrics,published_at,first_seen_at,retrieved_at) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?)')
+    .bind(id, source, kind, title, '', `https://example.com/${id}`, 'someone', entity, entity.toLowerCase(), JSON.stringify(tags), JSON.stringify(metrics), now, now, now).run();
+  await sig('hn:1', 'hn', 'launch', 'Skyfence – counter-drone interceptors for bases', 'Skyfence', { points: 240 });
+  await sig('github:1', 'github', 'repo', 'skyfence/autonomy-stack', 'skyfence', { stars: 900, starsPerDay: 90 }, ['drone']);
+  await sig('hn:2', 'hn', 'launch', 'A recipe app for busy parents', 'Recipes', { points: 300 });
+
+  const a = await visitor();
+  const b = await visitor();
+  const load = async (v) => (await request('/api/signals', { headers: { cookie: v.cookie } })).json();
+  const first = await load(a);
+  assert.ok(first.signals.length >= 3);
+  assert.ok(first.watches.length >= 5 && first.watches.every(w => w.starter), 'starter watches seed once per workspace');
+  assert.ok(first.sources.planned.some(p => p.id === 'x'), 'paid sources are listed as not connected');
+
+  const created = await request('/api/watches', { method: 'POST', headers: a.headers, body: JSON.stringify({ name: 'Counter-drone', includeTerms: ['Counter-Drone', 'drone'], excludeTerms: ['recipe'], minScore: 10 }) });
+  assert.equal(created.status, 201);
+  const watch = (await created.json()).watch;
+  assert.deepEqual(watch.includeTerms, ['counter-drone', 'drone'], 'terms are normalized');
+
+  const key = (await (await request('/api/agent-keys', { method: 'POST', headers: a.headers, body: JSON.stringify({ member: 'jeremy' }) })).json()).key;
+  const call = (name, args, k = key) => request(k ? `/mcp/${k}` : '/mcp', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ jsonrpc: '2.0', id: 1, method: 'tools/call', params: { name, arguments: args } }) }).then(r => r.json()).then(r => ({ isError: r.result.isError, data: (() => { try { return JSON.parse(r.result.content[0].text); } catch { return r.result.content[0].text; } })() }));
+  const results = await call('get_watch_signals', { watch: 'Counter-drone' });
+  assert.equal(results.isError, false, JSON.stringify(results.data));
+  assert.deepEqual(results.data.results.map(r => r.id).sort(), ['github:1', 'hn:1'], 'hard filters drop the recipe app');
+  assert.ok(results.data.results.find(r => r.id === 'hn:1').why.some(w => /Also seen on GitHub/.test(w)), 'cross-source convergence is explained');
+
+  const edit = await request(`/api/watches/${watch.id}`, { method: 'PATCH', headers: a.headers, body: JSON.stringify({ expectedVersion: 1, changes: { minScore: 99 } }) });
+  assert.equal(edit.status, 200);
+  const stale = await request(`/api/watches/${watch.id}`, { method: 'PATCH', headers: a.headers, body: JSON.stringify({ expectedVersion: 1, changes: { minScore: 5 } }) });
+  assert.equal(stale.status, 409);
+  assert.deepEqual((await (await request(`/api/watches/${watch.id}/history`, { headers: { cookie: a.cookie } })).json()).revisions.map(r => r.version), [2, 1]);
+  assert.equal((await request(`/api/watches/${watch.id}`, { method: 'PATCH', headers: b.headers, body: JSON.stringify({ expectedVersion: 2, changes: { minScore: 5 } }) })).status, 404, 'watches are owner scoped');
+  assert.ok(!(await load(b)).watches.some(w => w.id === watch.id));
+  assert.equal((await request('/api/signals/vote', { method: 'POST', headers: { ...a.headers, 'x-csrf-token': 'nope' }, body: JSON.stringify({ watchId: watch.id, signalId: 'hn:1', vote: 1 }) })).status, 403);
+  assert.equal((await request('/api/signals/vote', { method: 'POST', headers: a.headers, body: JSON.stringify({ watchId: watch.id, signalId: 'hn:1', vote: -1 }) })).status, 200);
+  assert.equal((await load(a)).watches.find(w => w.id === watch.id).votes['hn:1'], -1);
+
+  const promoted = await request('/api/signals/promote', { method: 'POST', headers: a.headers, body: JSON.stringify({ signalId: 'hn:1', actor: 'jeremy' }) });
+  assert.equal(promoted.status, 201);
+  const { org, created: isNew } = await promoted.json();
+  assert.equal(isNew, true);
+  const again = await call('promote_signal', { signalId: 'github:1', name: 'Skyfence Inc.' });
+  assert.equal(again.data.created, false, 'the same company is matched, not duplicated');
+  const crm = await (await request('/api/crm', { headers: { cookie: a.cookie } })).json();
+  const row = crm.orgs.find(o => o.id === org.id);
+  assert.equal(row.stage, 'sourced');
+  const notes = crm.interactions.filter(t => t.orgId === org.id && t.kind === 'note');
+  assert.equal(notes.length, 2);
+  assert.ok(notes.every(t => /https:\/\/example\.com\//.test(t.summary)), 'promotions cite the primary source');
+  assert.ok(notes.some(t => t.source === 'agent' && t.actor === 'jeremy'));
+  assert.ok((await load(a)).known.some(k => k.id === org.id), 'promoted companies are tagged as known');
+
+  const pub = await call('search_signals', { query: 'counter-drone' }, null);
+  assert.equal(pub.data.results[0].id, 'hn:1');
+  assert.match(pub.data.coverage, /Not covered: X/);
+  const publicTools = await (await request('/mcp', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ jsonrpc: '2.0', id: 1, method: 'tools/list' }) })).json();
+  assert.ok(!publicTools.result.tools.some(t => ['list_watches', 'promote_signal', 'create_watch'].includes(t.name)), 'watches stay private to their owner');
 });

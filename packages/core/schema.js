@@ -106,3 +106,25 @@ export const crmInteractionCreate = z.object({
   kind: z.enum(['meeting', 'call', 'email', 'intro', 'note']), summary: z.string().trim().min(1).max(1000),
   occurredAt: isoDate.optional(), actor: member,
 }).strict();
+
+// Signal Watch
+export const SIGNAL_SOURCES = ['hn', 'github', 'huggingface', 'arxiv', 'sec_form_d', 'usaspending', 'bluesky'];
+export const SIGNAL_KINDS = ['launch', 'repo', 'model', 'paper', 'raise', 'contract', 'post'];
+const terms = z.array(z.string().trim().toLowerCase().min(1).max(60)).max(40).transform((a) => [...new Set(a)]);
+const watchFields = {
+  name: z.string().trim().min(1).max(80), description: z.string().trim().max(600),
+  sources: z.array(z.enum(SIGNAL_SOURCES)).max(SIGNAL_SOURCES.length).transform((a) => [...new Set(a)]),
+  kinds: z.array(z.enum(SIGNAL_KINDS)).max(SIGNAL_KINDS.length).transform((a) => [...new Set(a)]),
+  includeTerms: terms, requireTerms: terms.pipe(z.array(z.string()).max(8)), excludeTerms: terms,
+  accounts: z.array(z.string().trim().toLowerCase().min(1).max(100).transform((v) => v.replace(/^@/, ''))).max(40).transform((a) => [...new Set(a)]),
+  minScore: z.number().int().min(0).max(100), delivery: z.enum(['feed', 'digest', 'alert']),
+};
+export const watchCreate = z.object({ ...Object.fromEntries(Object.entries(watchFields).map(([k, v]) => [k, k === 'name' ? v : v.optional()])) }).strict();
+export const watchUpdate = z.object({
+  expectedVersion: z.number().int().positive(),
+  changes: z.object({ ...Object.fromEntries(Object.entries(watchFields).map(([k, v]) => [k, v.optional()])), archived: z.boolean().optional() })
+    .strict().refine((v) => Object.keys(v).length > 0, 'Supply at least one change'),
+}).strict();
+export const signalVote = z.object({ watchId: z.string().uuid(), signalId: z.string().min(3).max(200), vote: z.union([z.literal(-1), z.literal(0), z.literal(1)]) }).strict();
+export const signalPromote = z.object({ signalId: z.string().min(3).max(200), name: z.string().trim().max(200).optional(), actor: member }).strict();
+export const signalRefresh = z.object({ sources: z.array(z.enum(SIGNAL_SOURCES)).max(SIGNAL_SOURCES.length).optional() }).strict();

@@ -23,6 +23,7 @@
     "migrations_dir": "migrations"
   }],
   "observability": {"enabled": true},
+  "triggers": {"crons": ["*/15 * * * *"]},
   "vars": {
     "APP_NAME": "Anti Fund HQ",
     "REPOSITORY_URL": "https://github.com/jeremyjv/antifund-hq"

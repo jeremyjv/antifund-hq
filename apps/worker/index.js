@@ -1,4 +1,5 @@
-import { ApiError, parseBody, recordCreate, recordUpdate, focusCreate, focusUpdate, weekId, goalCreate, goalUpdate, taskCreate, taskAction, goalNote, agentKeyCreate, crmOrgCreate, crmPersonCreate, crmOrgUpdate, crmPersonUpdate, crmInteractionCreate } from '../../packages/core/schema.js';
+import { ApiError, parseBody, recordCreate, recordUpdate, focusCreate, focusUpdate, weekId, goalCreate, goalUpdate, taskCreate, taskAction, goalNote, agentKeyCreate, crmOrgCreate, crmPersonCreate, crmOrgUpdate, crmPersonUpdate, crmInteractionCreate, watchCreate, watchUpdate, signalVote, signalPromote, signalRefresh } from '../../packages/core/schema.js';
+import { signalWorkspace, runSources, createWatch, updateWatch, watchHistory, voteSignal, promoteSignal } from '../../packages/core/signals.js';
 import { listCrm, createOrg, createPerson, updateOrg, updatePerson, logInteraction, crmHistory } from '../../packages/core/crm.js';
 import { TEAM, listFocuses, createFocus, updateFocus } from '../../packages/core/team.js';
 import { listGoals, createGoal, updateGoal, addTask, claimTask, unclaimTask, setTaskDone, archiveTask, addNote, createAgentKey, listAgentKeys } from '../../packages/core/goals.js';
@@ -104,6 +105,43 @@ async function route(request, env) {
     if (id && !hist && request.method === 'PATCH' && kind === 'people') { const input = await parseBody(request, crmPersonUpdate); return json({ person: await updatePerson(env.DB, owner, id, input) }); }
     throw new ApiError(405, 'Method not allowed');
   }
+  if (path === '/api/signals' && request.method === 'GET') {
+    const auth = await session(request, env.DB, true);
+    const data = await signalWorkspace(env.DB, auth.row.id, { archived: url.searchParams.get('archived') === 'true' });
+    return json({ ...data, csrfToken: auth.row.csrf_token }, 200, auth.cookie ? { 'Set-Cookie': auth.cookie } : {});
+  }
+  if (path === '/api/signals/refresh' && request.method === 'POST') {
+    const auth = await session(request, env.DB);
+    verifyWrite(request, auth.row);
+    const { sources } = await parseBody(request, signalRefresh);
+    return json(await runSources(env, { trigger: 'manual', only: sources || null, max: 7 }));
+  }
+  if (path === '/api/signals/vote' && request.method === 'POST') {
+    const auth = await session(request, env.DB);
+    verifyWrite(request, auth.row);
+    return json(await voteSignal(env.DB, auth.row.id, await parseBody(request, signalVote)));
+  }
+  if (path === '/api/signals/promote' && request.method === 'POST') {
+    const auth = await session(request, env.DB);
+    verifyWrite(request, auth.row);
+    const input = await parseBody(request, signalPromote);
+    return json(await promoteSignal(env.DB, auth.row.id, await catalog(env.DB), input), 201);
+  }
+  if (path === '/api/watches' && request.method === 'POST') {
+    const auth = await session(request, env.DB);
+    verifyWrite(request, auth.row);
+    return json({ watch: await createWatch(env.DB, auth.row.id, await parseBody(request, watchCreate)) }, 201);
+  }
+  const watchRoute = path.match(/^\/api\/watches\/([a-f0-9-]{36})(\/history)?$/);
+  if (watchRoute) {
+    const auth = await session(request, env.DB);
+    if (watchRoute[2] && request.method === 'GET') return json({ revisions: await watchHistory(env.DB, auth.row.id, watchRoute[1]) });
+    if (!watchRoute[2] && request.method === 'PATCH') {
+      verifyWrite(request, auth.row);
+      return json({ watch: await updateWatch(env.DB, auth.row.id, watchRoute[1], await parseBody(request, watchUpdate)) });
+    }
+    throw new ApiError(405, 'Method not allowed');
+  }
   if (path === '/api/agent-keys' && request.method === 'POST') {
     const auth = await session(request, env.DB);
     verifyWrite(request, auth.row);
@@ -150,7 +188,13 @@ export default {
   async fetch(request, env) {
     try { return secure(await route(request, env)); }
     catch (error) {
+      if (!error.status) console.error('request error', error?.stack || error);
       return secure(json({ error: error.status ? error.message : 'Service temporarily unavailable', ...(error.details ? { details: error.details } : {}) }, error.status || 503));
     }
+  },
+  // Signal Watch ingestion: every cron tick runs the sources that are due, a few at a time,
+  // so each invocation stays inside the free plan's subrequest and CPU limits.
+  async scheduled(event, env, ctx) {
+    ctx.waitUntil(runSources(env, { trigger: 'cron', max: 3 }).then((r) => console.log('signal run', JSON.stringify(r))).catch((e) => console.error('signal run failed', e?.stack || e)));
   },
 };

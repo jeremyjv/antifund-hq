@@ -5,6 +5,7 @@ import { sections, views, labels, sectionOf, plannedPages } from "./sections.js"
 import { firmWorkflowDraft } from "../../packages/core/firm-workflows.js";
 import { dashboardSnapshot } from "../../packages/core/dashboard.js";
 import { createCrm } from "./crm.js";
+import { createSignals } from "./signals.js";
 const $ = (selector, root = document) => root.querySelector(selector);
 const esc = (value = "") =>
   String(value ?? "").replace(
@@ -106,6 +107,13 @@ const crm = createCrm({
   catalogCompany: (id) => company(id),
   members: () => state.team?.members || [["geoff", "Geoff"], ["jake", "Jake"], ["logan", "Logan"], ["steve", "Steve"], ["laura", "Laura"], ["jeremy", "Jeremy"]].map(([id, name]) => ({ id, name })),
 });
+const signals = createSignals({
+  api, esc, icon, toast, heading, viewerId,
+  onCrmChange: () => crm.invalidate(),
+  rerender: () => shell(),
+  setCsrf: (token) => { if (token) state.csrf = token; },
+  view: () => state.view,
+});
 const date = (value) => {
   if (!value) return "Undated";
   if (/^\d{4}-\d{2}$/.test(value))
@@ -206,6 +214,7 @@ function shell() {
   const pages = current.pages.map(([id, label, ic]) => navItem(id, label, ic, id === "companies" ? state.research?.companies.length ?? "" : id === "workspace" ? state.workspace.length || "" : "")).join("");
   app.innerHTML = `<aside class="sidebar" aria-label="Primary navigation"><button class="icon-button mobile-menu" data-action="close-menu" aria-label="Close navigation">${icon("close")}</button><a class="brand" href="#overview" aria-label="Anti Fund HQ home"><img class="brand-logo" src="/assets/antifund-logo.png" alt=""><div><div class="brand-name">Anti Fund</div><div class="brand-sub">HQ</div></div></a><div class="side-body"><nav class="rail" aria-label="Sections">${rail}</nav><div class="side-panel"><div class="side-title">${esc(current.title)}</div><p class="side-desc">${esc(current.desc)}</p><nav aria-label="${esc(current.title)} pages">${pages}</nav></div></div><div class="sidebar-note"><strong>Prepared for Anti Fund.</strong> Prototype by Jeremy, built from public sources.</div></aside><div class="app-main"><header class="topbar"><button class="icon-button mobile-menu" data-action="open-menu" aria-label="Open navigation">${icon("menu")}</button><div class="breadcrumb"><span>Anti Fund HQ</span><span>/</span><span>${esc(current.title)}</span><span>/</span><span>${esc(labels[state.view])}</span></div><div class="topbar-actions"><span class="prototype"><span class="dot"></span> Independent prototype</span>${external(github, "View repository")}</div></header><main class="content" id="main" tabindex="-1">${page()}</main></div>`;
   crm.afterRender();
+  signals.afterRender();
 }
 function page() {
   if (state.loading)
@@ -226,6 +235,7 @@ function page() {
         crm: () => crm.render("crm"),
         founders: () => crm.render("founders"),
         pipeline: () => crm.render("pipeline"),
+        signals: () => signals.render(),
         ...Object.fromEntries(Object.keys(plannedPages).map((view) => [view, () => plannedPage(plannedPages[view])])),
       }[state.view] || overview
     )() + footer()
@@ -856,6 +866,7 @@ async function init() {
 function navigate() {
   const route = location.hash.slice(1);
   crm.reset();
+  signals.reset();
   state.view = views.includes(route)
     ? route
     : "overview";

@@ -3,7 +3,7 @@ export const sections = [
   { id: 'hq', label: 'HQ', title: 'HQ', icon: 'home', desc: 'The shared desk: what happened, what is open, who is on it.',
     pages: [['overview', 'Home', 'home'], ['goals', 'Goals', 'target'], ['feed', 'Feed', 'feed'], ['teamlog', 'Team log', 'log'], ['workspace', 'Saved work', 'folder']] },
   { id: 'deals', label: 'Deals', title: 'Deals', icon: 'handshake', desc: 'One flow from first signal to partner decision.',
-    pages: [['pipeline', 'Pipeline', 'grid'], ['sourcing', 'Sourcing', 'search'], ['companies', 'Companies', 'companies'], ['diligence', 'Diligence & memos', 'edit'], ['agents', 'Agents', 'spark'], ['research', 'Research briefs', 'research']] },
+    pages: [['pipeline', 'Pipeline', 'grid'], ['signals', 'Signals', 'feed'], ['sourcing', 'Sourcing', 'search'], ['companies', 'Companies', 'companies'], ['diligence', 'Diligence & memos', 'edit'], ['agents', 'Agents', 'spark'], ['research', 'Research briefs', 'research']] },
   { id: 'people', label: 'CRM', title: 'CRM', icon: 'people', desc: 'Every person, company, and touch in the firm’s own database. Your agent reads and writes it too.',
     pages: [['crm', 'All records', 'grid'], ['founders', 'Founders', 'people'], ['visits', 'Field visits & events', 'pin'], ['intros', 'Intros & co-investors', 'connect']] },
   { id: 'portfolio', label: 'Portfolio', title: 'Portfolio', icon: 'chart', desc: 'How the bets are doing, and the story that raises the next fund.',

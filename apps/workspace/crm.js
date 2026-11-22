@@ -409,5 +409,7 @@ export function createCrm(ctx) {
       document.body.classList.toggle("crm-drawer-open", !!s.open && isCrmView());
     },
     reset() { s.open = null; s.editing = false; },
+    // Another page (e.g. Signals → CRM) changed records; reload on next view.
+    invalidate() { s.data = null; },
   };
 }
